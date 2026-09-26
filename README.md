@@ -145,7 +145,7 @@ In Claude Code:
 /plugin install my-business-brain@my-business-brain
 ```
 
-You'll need Claude Code 2.1.271 or later for the settings menus. In the Claude app, add it from the plugin directory or upload the packaged `.plugin` file. It works best with a connected folder, so it can keep its files, and a connected calendar, for one-click Contract Clocks.
+You'll need Claude Code 2.1.271 or later for the settings menus. In the Claude app, add it from the plugin directory or upload the `.plugin` file from the [latest release](https://github.com/the-abraham-brand/my-business-brain/releases/latest). It works best with a connected folder, so it can keep its files, and a connected calendar, for one-click Contract Clocks.
 
 ## Works well with
 
