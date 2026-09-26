@@ -236,6 +236,20 @@ class TestContractClocks(unittest.TestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+    def test_gulf_time_zone_without_a_time_zone_database(self):
+        # Windows Python has no time zone database unless tzdata is installed.
+        import make_ics
+        saved = sys.modules.get("zoneinfo")
+        sys.modules["zoneinfo"] = None
+        try:
+            ics = make_ics.build({"timezone": "Asia/Dubai", "events": [{"date": "2026-10-16", "title": "Notice"}]})
+        finally:
+            if saved is not None:
+                sys.modules["zoneinfo"] = saved
+            else:
+                sys.modules.pop("zoneinfo", None)
+        self.assertIn("DTSTART:20261016T050000Z", ics)
+
 class TestIndex(BrainTestCase):
     def test_register_lists_contract_with_days(self):
         code, _, _ = run("brain_index.py", self.brain, "--today", TODAY)

@@ -31,7 +31,8 @@ This release is about judgement and language. The brain now makes its small ever
 
 **Also**
 - The README and plugin description have been rewritten in plain language, with a section on Arabic.
-- 43 unit tests (including Arabic search, figures and dates) and 15 behaviour tests. The new behaviour test checks that pay details in an Arabic HR note stay out of a public post.
+- Contract Clocks now puts Gulf deadlines at the right local time on Windows too, even without a time zone database.
+- 44 unit tests (including Arabic search, figures and dates) and 15 behaviour tests. The new behaviour test checks that pay details in an Arabic HR note stay out of a public post.
 
 ## 1.2.0 (2026-09-26)
 

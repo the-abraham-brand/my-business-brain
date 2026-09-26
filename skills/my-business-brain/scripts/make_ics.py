@@ -47,15 +47,31 @@ def fold(line):
     return "\r\n ".join(parts)
 
 
+# Zones with no daylight saving, as fixed UTC offsets in minutes. Used when the system has no time
+# zone database (Windows Python without the tzdata package), so Gulf deadlines still land at the
+# right local time.
+FIXED_ZONES = {"UTC": 0, "Etc/UTC": 0, "Asia/Dubai": 240, "Asia/Muscat": 240, "Asia/Riyadh": 180,
+               "Asia/Qatar": 180, "Asia/Bahrain": 180, "Asia/Kuwait": 180, "Asia/Baghdad": 180,
+               "Asia/Karachi": 300, "Asia/Kolkata": 330, "Asia/Calcutta": 330, "Asia/Dhaka": 360,
+               "Asia/Singapore": 480, "Asia/Hong_Kong": 480, "Asia/Shanghai": 480, "Asia/Tokyo": 540,
+               "Africa/Cairo": 120, "Africa/Nairobi": 180, "Africa/Lagos": 60}
+
+
+def resolve_zone(tz):
+    """The tzinfo for an IANA zone name, or None (floating local time) if it can't be found."""
+    try:
+        from zoneinfo import ZoneInfo
+        return ZoneInfo(tz)
+    except Exception:
+        if tz in FIXED_ZONES:
+            return timezone(timedelta(minutes=FIXED_ZONES[tz]), tz)
+        print(f"Time zone '{tz}' not available; using floating local time.", file=sys.stderr)
+        return None
+
+
 def build(spec):
     tz = spec.get("timezone")
-    zone = None
-    if tz:
-        try:
-            from zoneinfo import ZoneInfo
-            zone = ZoneInfo(tz)
-        except Exception:
-            print(f"Time zone '{tz}' not available; using floating local time.", file=sys.stderr)
+    zone = resolve_zone(tz) if tz else None
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//The Abraham Brand//My Business Brain Contract Clocks//EN",
            "CALSCALE:GREGORIAN", "METHOD:PUBLISH", f"X-WR-CALNAME:{esc(spec.get('calendar_name', 'Contract Clocks'))}"]

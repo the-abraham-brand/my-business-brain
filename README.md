@@ -112,7 +112,7 @@ You'll rarely need them. The brain switches on by itself when you share business
 
 ## How it's tested
 
-- **43 unit tests** of the scripts and hooks, run on Linux, macOS and Windows with every change.
+- **44 unit tests** of the scripts and hooks, run on Linux, macOS and Windows with every change.
 - **15 behaviour tests**, each run with and without the plugin on a made-up company's brain.
   - **5 show what the plugin adds.** With it, all five passed. Without it, Claude:
     - gave no health score and missed the problems planted for it;
@@ -145,7 +145,7 @@ In Claude Code:
 /plugin install my-business-brain@my-business-brain
 ```
 
-You'll need Claude Code 2.1.271 or later for the settings menus. In the Claude app, add it from the plugin directory or upload the `.plugin` file from the [latest release](https://github.com/the-abraham-brand/my-business-brain/releases/latest). It works best with a connected folder, so it can keep its files, and a connected calendar, for one-click Contract Clocks.
+You'll need Claude Code 2.1.271 or later for the settings menus. In the Claude app, add it from the plugin directory or upload the packaged `.plugin` file. It works best with a connected folder, so it can keep its files, and a connected calendar, for one-click Contract Clocks.
 
 ## Works well with
 
