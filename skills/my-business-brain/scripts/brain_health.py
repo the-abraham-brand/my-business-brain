@@ -112,23 +112,53 @@ def check(root, now):
 
     # Overlaps by title and content similarity (entries not already paired by key)
     feats = [(e, words(e["meta"].get("title", "")), words(e["body"])) for e in active]
-    for i in range(len(feats)):
-        for j in range(i + 1, len(feats)):
-            a, ta, ba = feats[i]
-            b, tb, bb = feats[j]
-            pair = tuple(sorted((a["meta"]["id"], b["meta"]["id"])))
-            if pair in keyed_pairs:
+    # Only compare entries that share at least one uncommon word (blocking keeps this fast
+    # on large brains; pairs with nothing distinctive in common cannot reach the threshold).
+    df = defaultdict(int)
+    for _, t, bw in feats:
+        for w in t | bw:
+            df[w] += 1
+    rare_limit = max(25, len(feats) // 50)
+    postings = defaultdict(list)
+    for idx, (_, t, bw) in enumerate(feats):
+        for w in t | bw:
+            if df[w] <= rare_limit:
+                postings[w].append(idx)
+    cand = set()
+    for plist in postings.values():
+        for x in range(len(plist)):
+            for y in range(x + 1, len(plist)):
+                cand.add((plist[x], plist[y]))
+    by_title = defaultdict(list)
+    for e, _, _ in feats:
+        t = norm(e["meta"].get("title", ""))
+        if t:
+            by_title[t].append(e["meta"]["id"])
+    for t, group in by_title.items():
+        if len(group) > 1:
+            pair_ids = sorted(group)
+            if all((a, b) in keyed_pairs for a in pair_ids for b in pair_ids if a < b):
                 continue
-            title_sim = jaccard(ta, tb)
-            body_sim = jaccard(ba, bb)
-            if norm(a["meta"].get("title", "")) == norm(b["meta"].get("title", "")):
-                issues.append(issue("Duplicate", "Medium", list(pair), "identical titles",
-                                    "Merge into one entry or give them distinct titles and keys"))
-            elif title_sim >= OVERLAP_THRESHOLD or (body_sim >= OVERLAP_THRESHOLD and len(ba | bb) >= 8):
-                sev = "Medium" if max(title_sim, body_sim) >= 0.8 else "Low"
-                issues.append(issue("Overlap", sev, list(pair),
-                                    f"similar content (title {title_sim:.0%}, text {body_sim:.0%})",
-                                    "Merge, or link them with [[id]] and give each a distinct scope"))
+            issues.append(issue("Duplicate", "Medium", pair_ids, "identical titles",
+                                "Merge into one entry or give them distinct titles and keys"))
+    for i, j in sorted(cand):
+        a, ta, ba = feats[i]
+        b, tb, bb = feats[j]
+        pair = tuple(sorted((a["meta"]["id"], b["meta"]["id"])))
+        if pair in keyed_pairs:
+            continue
+        if norm(a["meta"].get("title", "")) == norm(b["meta"].get("title", "")):
+            continue
+        ka, kb = str(a["meta"].get("key", "")).lower(), str(b["meta"].get("key", "")).lower()
+        if ka and kb and ka != kb:
+            continue  # distinct keys are declared distinct facts (e.g. one price per plan)
+        title_sim = jaccard(ta, tb)
+        body_sim = jaccard(ba, bb)
+        if title_sim >= OVERLAP_THRESHOLD or (body_sim >= OVERLAP_THRESHOLD and len(ba | bb) >= 8):
+            sev = "Medium" if max(title_sim, body_sim) >= 0.8 else "Low"
+            issues.append(issue("Overlap", sev, list(pair),
+                                f"similar content (title {title_sim:.0%}, text {body_sim:.0%})",
+                                "Merge, or link them with [[id]] and give each a distinct scope"))
 
     # Stale, unsourced, low confidence
     for e in active:
