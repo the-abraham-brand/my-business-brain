@@ -13,7 +13,8 @@ business-brain/
     calendar/<id>.ics      calendar files created by Contract Clocks
   analytics/
     <yyyy-mm-dd>-<topic>.md  saved analyses and recommendations
-  sources/                 optional: copies of source documents the user wants kept
+  sources/                 source documents the user wants kept, with a .md or .txt copy
+                           of each so they can be searched and cited to the line
   _system/
     changelog.md           every add, update, supersede, archive, with date and reason
     health-report.md       latest health check
@@ -92,6 +93,8 @@ Overage beyond the included minutes is billed per [[pricing-overage-rates]].
 5. **Write** new and updated entries, link related ones with `[[id]]`, record everything in `_system/changelog.md`.
 6. **Contracts**: also run Contract Clocks.
 7. **Report back** in a short list: added, updated, needs a decision.
+
+For many documents at once, use the bulk-load flow in `orchestration.md` (parallel readers, `scripts/ingest_plan.py` to merge and classify, coordinator writes).
 
 Capture from conversation too: when the user states a business fact, decision or preference in passing ("we don't do refunds after 14 days"), offer to remember it, or remember it directly if the user has asked the brain to capture automatically (recorded in `_system/preferences.md`).
 
