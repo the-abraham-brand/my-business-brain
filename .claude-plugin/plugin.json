@@ -1,0 +1,13 @@
+{
+  "name": "my-business-brain",
+  "version": "1.0.0",
+  "description": "My Business Brain by Abraham: a self-healing second brain for your business inside Claude. Remembers your products, prices, customers, policies and decisions with sources, flags conflicts and overlaps, vets official information against trusted sources, analyses the business to consulting standard, and puts contract deadlines on your calendar (Contract Clocks).",
+  "author": {
+    "name": "Abraham",
+    "url": "https://theabrahambrand.com"
+  },
+  "homepage": "https://github.com/the-abraham-brand/my-business-brain",
+  "repository": "https://github.com/the-abraham-brand/my-business-brain",
+  "license": "MIT",
+  "keywords": ["business", "knowledge-base", "second-brain", "self-healing", "analytics", "contracts", "calendar", "reminders", "small-business"]
+}
