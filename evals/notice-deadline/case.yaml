@@ -1,0 +1,21 @@
+schema_version: "1.1"
+name: notice-deadline
+description: "Works out the contract notice deadline and what must be done."
+tags: [guard, contract-clocks]
+context:
+  scaffold_script: setup.sh
+execution:
+  max_turns: 25
+  timeout_seconds: 420
+  allowed_tools: [Skill, Read, Glob, Grep, Bash, Write, Edit]
+  prompt: "The business brain for my company is in the `business-brain` folder in this workspace. Today is 26 September 2026. When is the last day we can stop the Supplier X hosting agreement from renewing, and what exactly do we have to do?"
+graders:
+  - name: date
+    type: regex
+    pattern: "(16(th)? Oct(ober)?,? 2026|2026-10-16|Oct(ober)? 16(th)?,? 2026)"
+    flags: i
+    match: contains
+  - name: steps
+    type: llm
+    focus: last_message
+    criteria: "PASS if the reply gives 16 October 2026 as the last day to give notice, says written notice of non-renewal must be sent (to legal@supplierx.example, per clause 14.2 or 14.3), and mentions that it is about 20 days away or urgent.\nFAIL if the date is different, or the reply omits that notice must be in writing."

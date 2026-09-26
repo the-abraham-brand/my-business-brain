@@ -1,0 +1,41 @@
+schema_version: "1.1"
+name: calendar-three-reminders
+description: "Creates a calendar file for the contract dates with reminders 7 days, 3 days and 24 hours before each event."
+tags: [contribution, contract-clocks]
+context:
+  scaffold_script: setup.sh
+execution:
+  max_turns: 30
+  timeout_seconds: 600
+  allowed_tools: [Skill, Read, Glob, Grep, Bash, Write, Edit]
+  prompt: "The business brain for my company is in the `business-brain` folder in this workspace. Today is 26 September 2026. I confirm the Supplier X contract dates in the brain are correct. Create a calendar file I can import into Apple Calendar with the notice deadline and the expiry date, and save it as business-brain/contracts/calendar/supplier-x.ics."
+graders:
+  - name: file
+    type: file_exists
+    path: "business-brain/contracts/calendar/supplier-x.ics"
+    exists: true
+  - name: six-reminders
+    type: regex
+    target: {source: file, path: business-brain/contracts/calendar/supplier-x.ics}
+    pattern: "BEGIN:VALARM"
+    match: "count:6"
+  - name: seven-days
+    type: regex
+    target: {source: file, path: business-brain/contracts/calendar/supplier-x.ics}
+    pattern: "TRIGGER[^:\\n]*:-P7D"
+    match: "count:2"
+  - name: three-days
+    type: regex
+    target: {source: file, path: business-brain/contracts/calendar/supplier-x.ics}
+    pattern: "TRIGGER[^:\\n]*:-P3D"
+    match: "count:2"
+  - name: one-day
+    type: regex
+    target: {source: file, path: business-brain/contracts/calendar/supplier-x.ics}
+    pattern: "TRIGGER[^:\\n]*:-(PT24H|P1D)"
+    match: "count:2"
+  - name: notice-date
+    type: regex
+    target: {source: file, path: business-brain/contracts/calendar/supplier-x.ics}
+    pattern: "DTSTART[^:\\n]*:20261016"
+    match: contains

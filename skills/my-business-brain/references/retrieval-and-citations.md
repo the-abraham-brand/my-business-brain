@@ -11,7 +11,7 @@ Two complementary signals, the same idea as production "hybrid search":
 
 The script's own re-ranking favours trust: active, high-confidence, in-date entries rank above drafts, disputed, low-confidence, overdue and archived ones. Results carry warning flags; carry them into the answer.
 
-Useful options: `--domain pricing` to narrow, `--include-archive` for history questions ("what did we charge last year?"), `--no-sources` to search entries only, `--json` for structured output.
+Useful options: `--audience external` when drafting anything that leaves the business (confidential entries are left out), `--domain pricing` to narrow, `--include-archive` for history questions ("what did we charge last year?"), `--no-sources` to search entries only, `--json` for structured output.
 
 **If the search finds nothing,** try the business's own terms and broader phrasings before concluding the brain does not know. Log the miss in `_system/questions.md`.
 
@@ -31,7 +31,8 @@ Useful options: `--domain pricing` to narrow, `--include-archive` for history qu
    - every number, amount, percentage and date appears in what the sentence cites;
    - every quoted phrase appears word for word;
    - cited entries are current (it warns on superseded, archived, disputed, draft, low-confidence and overdue entries);
-   - no sentence states figures without a citation.
+   - no sentence states figures without a citation;
+   - with `--audience external`, no confidential entry is cited and internal ones are flagged for the user to confirm.
 4. **Fix every failure before answering**: correct the figure, cite the right entry, mark a genuine calculation with `[calc]`, or remove the claim. Carry every warning into the answer in plain words ("this was due for review in March").
 5. Present the answer to the user with citations as entry titles and file names (the `[[id]]` markers are for checking; convert them to readable references unless the user prefers ids).
 

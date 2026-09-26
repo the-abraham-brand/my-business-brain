@@ -1,6 +1,11 @@
 # Orchestration: parallel readers and an independent checker
 
-For big jobs the brain works as a small team: a **coordinator** (the main conversation) that owns the brain, **readers** that extract knowledge in parallel, and an independent **checker** for high-stakes results. Use sub-agents (the Agent or Task tool) when they are available; otherwise do the same steps one after another. The rules are identical either way.
+For big jobs the brain works as a small team: a **coordinator** (the main conversation) that owns the brain, **readers** that extract knowledge in parallel, and an independent **checker** for high-stakes results. The plugin ships both as agents:
+
+- **`brain-reader`** (`my-business-brain:brain-reader`): tools limited to Read, Glob and Grep. It cannot write, run commands or use the web, so a poisoned document cannot make it act. It returns candidate facts as JSON in its reply; the coordinator saves that JSON to a file for the planner.
+- **`brain-checker`** (`my-business-brain:brain-checker`): Read, Glob, Grep, WebSearch and WebFetch; no writing. It is never shown the draft finding.
+
+Where plugin agents are not available, use general sub-agents with the same briefs, or do the steps one after another. The rules are identical either way.
 
 ## Roles
 
@@ -14,12 +19,12 @@ For big jobs the brain works as a small team: a **coordinator** (the main conver
 
 Use when the user adds more than about five documents, or one very long one (a policy manual, a year of contracts).
 
-1. **Plan.** List the documents; group them into batches of 3–5 by type (contracts, price lists, policies…). One reader per batch, up to about five in parallel.
+1. **Plan.** List the documents; group them into batches of 3–5 by type (contracts, price lists, policies…). One `brain-reader` per batch, up to about five in parallel.
 2. **Brief each reader** with: the documents, the brain's domain list and existing keys for those domains (from `INDEX.md` or `brain_search.py --domain`), the business's glossary, and this output contract:
    - Return a JSON list of candidates, one fact per item, with `title`, `type`, `domain`, `key` (reuse existing keys where the fact is the same thing), `value`, `source` (document name and version), `location` (page, clause, table), `quote` (the exact wording), `confidence`, and optional `body`, `related`, `tags`, and `extra` (contract fields: `counterparty`, `start_date`, `end_date`, `notice_deadline`, `auto_renewal`).
    - Extract only what the document states. No inference beyond simple unit normalisation. Anything unclear is returned with `confidence: low` and a note in `body`.
    - Do not write any files except the JSON output.
-3. **Merge and plan.** Save each reader's output and run `scripts/ingest_plan.py <brain-folder> reader1.json reader2.json …`. It classifies every candidate against the brain and against the rest of the batch: `new`, `refresh`, `conflict` (with the brain, or between two documents in the batch), `overlap`, `duplicate`, `invalid`.
+3. **Merge and plan.** Save each reader's JSON reply to a file and run `scripts/ingest_plan.py <brain-folder> reader1.json reader2.json …`. It classifies every candidate against the brain and against the rest of the batch: `new`, `refresh`, `conflict` (with the brain, or between two documents in the batch), `overlap`, `duplicate`, `invalid`, `quarantine` (the candidate contains text that tries to instruct an AI; see `security-and-privacy.md`), and `confirm` (the reader's `certainty` is below the auto-apply threshold: pass `--auto <setting>`; show these to the user before writing).
 4. **Review the plan** (coordinator): spot-check a sample of `new` items against their quotes; send `invalid` items back to their reader; vet official information (`trusted-sources.md`).
 5. **Apply.** Run again with `--write`: new entries are created with review dates by type, conflicts go to `_system/decisions-needed.md` grouped by key, and the changelog records the load. Apply refreshes; propose merges or links for overlaps.
 6. **Contracts** found in the load go through Contract Clocks (confirm dates with the user before any calendar event).
@@ -27,7 +32,7 @@ Use when the user adds more than about five documents, or one very long one (a p
 
 ## Independent checker (maker-checker)
 
-Use a fresh checker whenever a result could cost money, create legal exposure or drive a significant decision:
+Use a fresh `brain-checker` whenever a result could cost money, create legal exposure or drive a significant decision:
 
 - official information before it is stored (tax, fees, licences, regulations, deadlines);
 - a conflict resolution the user asks the brain to recommend;

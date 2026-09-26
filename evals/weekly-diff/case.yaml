@@ -1,0 +1,27 @@
+schema_version: "1.1"
+name: weekly-diff
+description: "The brain reports what changed in the past week: a superseded price and a new price."
+tags: [contribution, regression]
+context:
+  scaffold_script: setup.sh
+execution:
+  max_turns: 25
+  timeout_seconds: 600
+  allowed_tools: [Skill, Read, Glob, Grep, Bash, Write, Edit]
+  prompt: "The business brain for my company is in the `business-brain` folder in this workspace. What changed in the brain over the past week?"
+graders:
+  - name: scale-change
+    type: regex
+    target: last_message
+    pattern: "14,?999[\\s\\S]{0,80}15,?999"
+    match: contains
+  - name: new-addon
+    type: regex
+    target: last_message
+    pattern: "(call )?recording"
+    flags: i
+    match: contains
+  - name: complete
+    type: llm
+    focus: last_message
+    criteria: "PASS if the reply says that in the past week the Scale plan price changed from AED 14,999 to AED 15,999 per month (old price kept as history) and that a new call recording add-on price of AED 299 per month was added.\nFAIL if either change is missing or the reply invents changes that did not happen."

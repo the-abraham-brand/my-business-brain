@@ -1,0 +1,20 @@
+schema_version: "1.1"
+name: history-from-archive
+description: "Answers a question about the past from superseded entries in the archive."
+tags: [guard, answer, history]
+context:
+  scaffold_script: setup.sh
+execution:
+  max_turns: 25
+  timeout_seconds: 420
+  allowed_tools: [Skill, Read, Glob, Grep, Bash, Write, Edit]
+  prompt: "The business brain for my company is in the `business-brain` folder in this workspace. What did we charge for the Growth plan in 2025, and what do we charge now?"
+graders:
+  - name: both
+    type: regex
+    pattern: "4,?499[\\s\\S]*4,?999|4,?999[\\s\\S]*4,?499"
+    match: contains
+  - name: explains
+    type: llm
+    focus: last_message
+    criteria: "PASS if the reply says the Growth plan was AED 4,499 per month in 2025 (from the archived price list v2) and is AED 4,999 per month now (price list v3).\nFAIL if either figure is wrong or missing."

@@ -9,7 +9,7 @@ import sys
 from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brainlib import load_brain, parse_date, today
+from brainlib import load_brain, parse_date, today, sensitivity_of
 
 
 def cell(v):
@@ -38,14 +38,14 @@ def build(root, now):
              f"Generated {now.isoformat()} by brain_index.py. Do not edit by hand.", "",
              f"{len(active)} active entries in {len(by_domain)} domains; "
              f"{sum(1 for e in entries if e['archived'])} archived; {open_decisions(root)} open decisions "
-             f"(see `_system/decisions-needed.md`).", ""]
+             f"(see `_system/decisions-needed.md`). 🔒 = confidential: never used in material leaving the business.", ""]
     for d in sorted(by_domain):
         lines += [f"## {d}", "", "| Entry | Value | Status | Review by | File |", "|---|---|---|---|---|"]
         for e in sorted(by_domain[d], key=lambda x: str(x["meta"].get("title", "")).lower()):
             m = e["meta"]
             rb = parse_date(m.get("review_by"))
             review = "" if not rb or rb.year >= 9999 else rb.isoformat() + (" ⚠ overdue" if rb < now else "")
-            status = m.get("status", "active")
+            status = m.get("status", "active") + (" 🔒" if sensitivity_of(m) == "confidential" else "")
             lines.append(f"| {cell(m.get('title'))} | {cell(m.get('value'))} | {status} | {review} | [{e['file_id']}]({e['path']}) |")
         lines.append("")
     lines += ["## Counts", "", "| Domain | Active entries |", "|---|---|"]

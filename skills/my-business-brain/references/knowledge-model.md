@@ -47,6 +47,7 @@ verified_on: 2026-09-26
 review_by: 2027-03-26
 owner: Abraham
 confidence: high
+sensitivity: public
 supersedes: [pricing-growth-plan-monthly-2025]
 related: [products-growth-plan, pricing-overage-rates]
 tags: [pricing, plans]
@@ -75,6 +76,7 @@ Overage beyond the included minutes is billed per [[pricing-overage-rates]].
 | `review_by` | yes | When to recheck. Defaults: prices, rates and official rules 6 months; policies and procedures 12 months; people and contacts 12 months; contracts on their own dates; decisions none (use `9999-12-31`) |
 | `owner` | recommended | Who can confirm it |
 | `confidence` | yes | high (documented or verified), medium (stated by the user without a document), low (inferred, needs confirmation) |
+| `sensitivity` | yes | public, internal or confidential: where the fact may go (see `security-and-privacy.md`). Missing means `confidential` for people, contracts and finance, otherwise `internal` |
 | `supersedes` | optional | ids this entry replaces |
 | `related` | optional | ids of connected entries; also link inline as `[[id]]` |
 | `tags` | optional | free labels |

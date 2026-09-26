@@ -11,8 +11,15 @@
     {
       "name": "my-business-brain",
       "source": "./",
-      "description": "Business knowledge bank that heals itself, flags conflicts, vets official information, analyses like a consultant, and tracks contract deadlines on your calendar.",
-      "version": "1.1.0"
+      "description": "Business knowledge bank that heals itself, flags conflicts, keeps confidential facts out of outgoing material, vets official information, analyses like a consultant, and tracks contract deadlines on your calendar.",
+      "version": "1.2.0",
+      "category": "productivity",
+      "tags": [
+        "business",
+        "knowledge-base",
+        "contracts",
+        "analytics"
+      ]
     }
   ]
 }

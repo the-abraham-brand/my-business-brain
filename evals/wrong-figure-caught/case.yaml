@@ -1,0 +1,20 @@
+schema_version: "1.1"
+name: wrong-figure-caught
+description: "A wrong price in an outgoing draft is caught and corrected from the brain."
+tags: [guard, citations, answer]
+context:
+  scaffold_script: setup.sh
+execution:
+  max_turns: 25
+  timeout_seconds: 420
+  allowed_tools: [Skill, Read, Glob, Grep, Bash, Write, Edit]
+  prompt: "The business brain for my company is in the `business-brain` folder in this workspace. Before I send this to a prospect, check it against the brain: \"Our Growth plan is AED 4,500 per month and includes 2,000 call minutes and 3 seats.\""
+graders:
+  - name: correct-price
+    type: regex
+    pattern: "4,?999"
+    match: contains
+  - name: flags-error
+    type: llm
+    focus: last_message
+    criteria: "PASS if the reply says AED 4,500 is wrong, gives the correct Growth plan price of AED 4,999 per month (excluding VAT) from the brain, and confirms the minutes and seats are right.\nFAIL if it accepts AED 4,500, gives any other price, or does not cite the brain."

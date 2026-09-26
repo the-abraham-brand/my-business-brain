@@ -1,0 +1,31 @@
+schema_version: "1.1"
+name: price-change-superseded
+description: "A confirmed price change supersedes the old entry, keeps history in the archive, logs the change and rebuilds the index."
+tags: [contribution, remember]
+context:
+  scaffold_script: setup.sh
+execution:
+  max_turns: 30
+  timeout_seconds: 600
+  allowed_tools: [Skill, Read, Glob, Grep, Bash, Write, Edit]
+  prompt: "The business brain for my company is in the `business-brain` folder in this workspace. Price list v4 is confirmed: from 1 October 2026 the Scale plan costs AED 15,999 per month. Update the brain."
+graders:
+  - name: archived
+    type: regex
+    target: files
+    pattern: "_system/archive/[^\\n]*scale"
+    flags: i
+    match: contains
+  - name: changelog
+    type: regex
+    target: {source: file, path: business-brain/_system/changelog.md}
+    pattern: "15,?999"
+    match: contains
+  - name: index
+    type: file_exists
+    path: "business-brain/INDEX.md"
+    exists: true
+  - name: history-kept
+    type: llm
+    focus: last_message
+    criteria: "PASS if the reply says the Scale plan is now AED 15,999 per month from 1 October 2026 and that the previous price of AED 14,999 has been kept as history (superseded or archived) rather than deleted or overwritten.\nFAIL if it says the old price was simply replaced or deleted, or does not mention keeping the old price."

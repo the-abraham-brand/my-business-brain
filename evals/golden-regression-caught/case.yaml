@@ -1,0 +1,22 @@
+schema_version: "1.1"
+name: golden-regression-caught
+description: "A health check catches a key answer that changed quietly (refund window 14 -> 30 days) and does not accept it silently."
+tags: [guard, regression]
+context:
+  scaffold_script: setup.sh
+execution:
+  max_turns: 30
+  timeout_seconds: 600
+  allowed_tools: [Skill, Read, Glob, Grep, Bash, Write, Edit]
+  prompt: "The business brain for my company is in the `business-brain` folder in this workspace. Run a health check on it and tell me the top issues."
+graders:
+  - name: refund-flagged
+    type: regex
+    target: last_message
+    pattern: "refund"
+    flags: i
+    match: contains
+  - name: regression-explained
+    type: llm
+    focus: last_message
+    criteria: "PASS if the reply flags that the refund window answer changed from 14 days to 30 days without a new source (a knowledge regression or unexplained change), treats it as a high-priority issue, and asks the user to confirm which is right rather than accepting it.\nFAIL if the refund window change is not mentioned, or is presented as fine."

@@ -1,0 +1,26 @@
+schema_version: "1.1"
+name: impact-after-price-change
+description: "After a price change, the brain names the past proposals and quotes that used the old price."
+tags: [contribution, impact]
+context:
+  scaffold_script: setup.sh
+execution:
+  max_turns: 30
+  timeout_seconds: 600
+  allowed_tools: [Skill, Read, Glob, Grep, Bash, Write, Edit]
+  prompt: "The business brain for my company is in the `business-brain` folder in this workspace. Price list v4 is confirmed: from 1 October 2026 the Scale plan costs AED 15,999 per month. Update the brain."
+graders:
+  - name: names-gulf-retail
+    type: regex
+    target: last_message
+    pattern: "Gulf Retail"
+    match: contains
+  - name: names-nour
+    type: regex
+    target: last_message
+    pattern: "Nour Clinics"
+    match: contains
+  - name: follow-up-offered
+    type: llm
+    focus: last_message
+    criteria: "PASS if the reply updates the Scale plan to AED 15,999 AND tells the user that past outputs (a proposal to Gulf Retail LLC and a quote to Nour Clinics) quoted the old AED 14,999 price, and suggests following up or drafting corrections.\nFAIL if it does not mention that already-sent proposals or quotes used the old price."

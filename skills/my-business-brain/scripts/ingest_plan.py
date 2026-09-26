@@ -4,7 +4,7 @@
 
 Usage:
   python3 ingest_plan.py <brain-folder> candidates.json [more.json ...]
-                         [--write] [--today YYYY-MM-DD] [--json]
+                         [--write] [--auto 0.9] [--today YYYY-MM-DD] [--json]
 
 Each file holds a JSON list of candidates (the reader's output; readers never write
 to the brain):
@@ -13,7 +13,8 @@ to the brain):
    "source": "Price list v3, Aug 2026", "source_type": "internal-document",
    "location": "p.2, table 1", "quote": "Growth ... AED 14,999 / month",
    "confidence": "high", "body": "optional detail", "related": ["products-growth-plan"],
-   "tags": ["plans"], "extra": {"counterparty": "...", "end_date": "2027-01-14"}}
+   "tags": ["plans"], "sensitivity": "internal",
+   "extra": {"counterparty": "...", "end_date": "2027-01-14"}}
 
 Each candidate gets one action:
   new       nothing like it in the brain or the batch -> write it (with --write)
@@ -23,6 +24,10 @@ Each candidate gets one action:
   overlap   similar title or wording to an existing entry but no shared key -> propose merge or link
   duplicate repeated within the batch with the same value -> folded into the first
   invalid   missing title, domain or source -> send back to the reader
+  confirm   the reader's "certainty" (0-1) for this fact is below the auto-apply threshold
+            (--auto, default 0.9) -> not written; shown to the user to confirm
+  quarantine the candidate contains text that tries to instruct an AI (possible prompt
+            injection) -> never written; logged in decisions-needed for the user to see
 With --write, "new" entries are created with review dates by type, conflicts are appended
 to _system/decisions-needed.md, and every change is logged in _system/changelog.md.
 Refreshes and overlaps are listed for the coordinator to apply or propose.
@@ -35,7 +40,7 @@ import sys
 from datetime import timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brainlib import load_brain, norm, words, jaccard, today, parse_date
+from brainlib import load_brain, norm, words, jaccard, today, parse_date, SENSITIVITY, injection_hits, CONFIDENTIAL_DOMAINS
 
 OVERLAP = 0.6
 SIX_MONTH = {"price"}
@@ -67,7 +72,7 @@ def review_by(c, now):
     return add_months(now, 12).isoformat()
 
 
-def plan(root, cands, now):
+def plan(root, cands, now, auto=0.9):
     entries = [e for e in load_brain(root) if e["meta"] and not e["archived"]
                and e["meta"].get("status", "active") in ("active", "draft", "disputed")]
     by_key = {}
@@ -88,6 +93,12 @@ def plan(root, cands, now):
                "reader": c.get("_file", "")}
         if not c.get("title") or not c.get("domain") or not c.get("source"):
             row.update(action="invalid", reason="missing title, domain or source")
+            out.append(row)
+            continue
+        hits = injection_hits(" ".join(str(c.get(f, "")) for f in
+                                       ("title", "value", "body", "quote", "location", "source")))
+        if hits:
+            row.update(action="quarantine", reason=f"text that tries to instruct an AI: \"{hits[0][:100]}\"")
             out.append(row)
             continue
         k = str(c.get("key", "")).strip().lower()
@@ -138,6 +149,11 @@ def plan(root, cands, now):
         while eid in taken:
             eid, i = f"{base}-{i}", i + 1
         taken.add(eid)
+        cert = c.get("certainty")
+        if isinstance(cert, (int, float)) and cert < auto:
+            row.update(action="confirm", reason=f"reader certainty {cert:.2f} is below the auto-apply threshold {auto:.2f}")
+            out.append(row)
+            continue
         row.update(action="new", id=eid, reason="nothing similar stored", _c=c)
         if k:
             batch_keys[k] = [row]
@@ -169,7 +185,11 @@ def write(root, rows, now):
                  ("recorded_on", now.isoformat())]
         if c.get("source_type") == "external-verified":
             meta.append(("verified_on", now.isoformat()))
-        meta += [("review_by", review_by(c, now)), ("confidence", c.get("confidence", "medium"))]
+        sens = str(c.get("sensitivity", "")).lower()
+        if sens not in SENSITIVITY:
+            sens = "confidential" if slug(c["domain"], 40) in CONFIDENTIAL_DOMAINS else "internal"
+        meta += [("review_by", review_by(c, now)), ("confidence", c.get("confidence", "medium")),
+                 ("sensitivity", sens)]
         for k2, v2 in (c.get("extra") or {}).items():
             meta.append((k2, v2))
         if c.get("related"):
@@ -186,6 +206,16 @@ def write(root, rows, now):
     sysdir = os.path.join(root, "_system")
     os.makedirs(sysdir, exist_ok=True)
     conflicts = [r for r in rows if r["action"] == "conflict"]
+    quarantined = [r for r in rows if r["action"] == "quarantine"]
+    if quarantined:
+        path = os.path.join(sysdir, "decisions-needed.md")
+        old = open(path, encoding="utf-8").read() if os.path.exists(path) else "# Decisions needed\n"
+        head, _, rest = old.partition("\n")
+        lines = [f"- [ ] {now.isoformat()} **Suspicious instructions** in {r['source'] or r['reader']}"
+                 f"{', ' + r['location'] if r['location'] else ''}: {r['reason']}. Not stored and not followed. "
+                 f"Check the document's origin." for r in quarantined]
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(head + "\n\n" + "\n".join(lines) + "\n" + rest)
     if conflicts:
         groups = {}
         for r in conflicts:
@@ -207,6 +237,8 @@ def write(root, rows, now):
         f.write(f"- Added {len(written)}: {', '.join(written) if written else 'none'}\n")
         if conflicts:
             f.write(f"- Conflicts sent to decisions-needed: {len(conflicts)}\n")
+        if quarantined:
+            f.write(f"- Quarantined for suspicious instructions: {len(quarantined)}\n")
     return written
 
 
@@ -225,7 +257,8 @@ def main(argv):
         for c in data if isinstance(data, list) else data.get("candidates", []):
             c["_file"] = os.path.basename(p)
             cands.append(c)
-    rows = plan(root, cands, now)
+    auto = float(args[args.index("--auto") + 1]) if "--auto" in args else 0.9
+    rows = plan(root, cands, now, auto)
     written = write(root, rows, now) if "--write" in args else []
     counts = {}
     for r in rows:

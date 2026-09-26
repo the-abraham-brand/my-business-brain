@@ -1,0 +1,25 @@
+schema_version: "1.1"
+name: answer-cites-entry
+description: "Answers a policy question from the brain with the correct figure and a citation."
+tags: [guard, answer, smoke]
+context:
+  scaffold_script: setup.sh
+execution:
+  max_turns: 25
+  timeout_seconds: 420
+  allowed_tools: [Skill, Read, Glob, Grep, Bash, Write, Edit]
+  prompt: "The business brain for my company is in the `business-brain` folder in this workspace. A customer bought a Growth plan 10 days ago and wants their money back. Can they get a full refund? Answer briefly and tell me where that comes from."
+graders:
+  - name: cites
+    type: llm
+    focus: last_message
+    criteria: "PASS if the reply says the customer can get a full refund because they are within the 14-day refund window, and names the brain's refund window entry or the Terms of service v5 as the source.\nFAIL if the figure differs from 14 days, if no source is given, or if the reply invents conditions that are not in the brain."
+  - name: figure
+    type: regex
+    pattern: "14[ -]days?"
+    flags: i
+    match: contains
+  - name: skill
+    type: tool_used
+    tool: Skill
+    min: 1

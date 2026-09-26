@@ -1,7 +1,7 @@
 {
   "name": "my-business-brain",
-  "version": "1.1.0",
-  "description": "My Business Brain by Abraham: a self-healing second brain for your business inside Claude. Remembers your products, prices, customers, policies and decisions with sources, answers with hybrid search and verified citations, flags conflicts and overlaps, bulk-loads documents with parallel readers, vets official information with an independent checker against trusted sources, analyses the business to consulting standard, and puts contract deadlines on your calendar (Contract Clocks).",
+  "version": "1.2.0",
+  "description": "My Business Brain by Abraham: a self-healing second brain for your business inside Claude. Remembers your products, prices, customers, policies and decisions with sources and sensitivity labels, answers with hybrid search and verified citations, makes small decisions with confidence scores and thresholds you set, warns when an answer the business relies on changes and which past emails and proposals used a changed fact, flags conflicts and overlaps, bulk-loads documents with read-only reader agents and screens them for prompt injection, vets official information with an independent checker agent, briefs you at the start of each session, analyses the business to consulting standard, and puts contract deadlines on your calendar (Contract Clocks).",
   "author": {
     "name": "Abraham",
     "url": "https://theabrahambrand.com"
@@ -9,5 +9,91 @@
   "homepage": "https://github.com/the-abraham-brand/my-business-brain",
   "repository": "https://github.com/the-abraham-brand/my-business-brain",
   "license": "MIT",
-  "keywords": ["business", "knowledge-base", "second-brain", "self-healing", "analytics", "contracts", "calendar", "reminders", "small-business"]
+  "keywords": [
+    "business",
+    "knowledge-base",
+    "second-brain",
+    "self-healing",
+    "analytics",
+    "contracts",
+    "calendar",
+    "reminders",
+    "small-business"
+  ],
+  "userConfig": {
+    "brain_folder": {
+      "type": "directory",
+      "title": "Brain folder",
+      "description": "The folder that holds your business brain (it contains BRAIN.md). Leave empty to use a business-brain folder in the current workspace.",
+      "required": false
+    },
+    "calendar": {
+      "type": "string",
+      "title": "Calendar for Contract Clocks",
+      "description": "Where contract deadlines go: google or outlook (through a connected calendar), ics for Apple, Thunderbird, Nextcloud, Proton or any CalDAV calendar, or ask to be asked each time.",
+      "options": [
+        "ask",
+        "google",
+        "outlook",
+        "ics"
+      ],
+      "default": "ask"
+    },
+    "currency": {
+      "type": "string",
+      "title": "Currency",
+      "description": "Your main currency code, for example AED, USD, EUR or GBP.",
+      "default": ""
+    },
+    "timezone": {
+      "type": "string",
+      "title": "Time zone",
+      "description": "Your IANA time zone for calendar events, for example Asia/Dubai or Europe/London. Empty uses local time.",
+      "default": ""
+    },
+    "weekend": {
+      "type": "string",
+      "title": "Weekend days",
+      "description": "Used to flag deadlines that fall on a weekend.",
+      "options": [
+        "sat-sun",
+        "fri-sat",
+        "fri",
+        "sun"
+      ],
+      "default": "sat-sun"
+    },
+    "capture_mode": {
+      "type": "string",
+      "title": "Remembering facts from conversation",
+      "description": "ask: offer to remember business facts you mention; auto: remember them and tell you.",
+      "options": [
+        "ask",
+        "auto"
+      ],
+      "default": "ask"
+    },
+    "session_brief": {
+      "type": "boolean",
+      "title": "Session brief",
+      "description": "At the start of a session, tell Claude about decisions waiting and contract deadlines coming up (Claude Code and Cowork).",
+      "default": true
+    },
+    "auto_threshold": {
+      "type": "number",
+      "title": "Auto-apply confidence",
+      "description": "Small decisions (what to remember, which domain, how sensitive) at or above this confidence are applied automatically and logged. Types that keep being corrected get a stricter bar automatically.",
+      "default": 0.9,
+      "min": 0.5,
+      "max": 1
+    },
+    "review_threshold": {
+      "type": "number",
+      "title": "Ask-me confidence",
+      "description": "Decisions between this and the auto-apply confidence are shown to you to confirm; below it, they go to the independent checker or to you.",
+      "default": 0.6,
+      "min": 0,
+      "max": 0.95
+    }
+  }
 }

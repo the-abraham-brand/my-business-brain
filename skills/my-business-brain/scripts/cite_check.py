@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """My Business Brain citation check: verify a drafted answer against the entries it cites.
 
-Usage: python3 cite_check.py <brain-folder> <answer.md | -> [--today YYYY-MM-DD] [--json]
+Usage: python3 cite_check.py <brain-folder> <answer.md | -> [--audience internal|external]
+                             [--log "what this is for"] [--kind answer|email|proposal|quote|report|post|document]
+                             [--recipient "who receives it"] [--today YYYY-MM-DD] [--json]
+
+With --log, a draft that passes is recorded in _system/answer-log.jsonl with the entries and
+values it relied on, so that if any of those facts change later, impact.py can list the outputs
+that used the old value.
 
 Write the draft with a citation after each factual sentence, using entry ids or source
 chunk references exactly as brain_search.py prints them:
@@ -17,6 +23,8 @@ For every sentence the check confirms that:
   - every "quoted phrase" appears word for word;
   - cited entries are current: not superseded, archived, disputed, overdue or low confidence.
 It also flags sentences that state figures without any citation.
+With --audience external (an email, proposal, post or anything leaving the business),
+citing a confidential entry is a failure and citing an internal one needs confirmation.
 Exit code 0 = all supported, 1 = something to fix. Standard library only.
 """
 import json
@@ -26,7 +34,7 @@ import sys
 from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brainlib import load_brain, parse_date, today
+from brainlib import load_brain, parse_date, today, sensitivity_of
 
 CITE_RE = re.compile(r"\[\[([^\]]+)\]\]")
 QUOTE_RE = re.compile(r"[\"“]([^\"”]{4,})[\"”]")
@@ -127,7 +135,7 @@ def entry_text(e):
     return "\n".join(parts) + "\n" + e["body"]
 
 
-def check(root, text, now):
+def check(root, text, now, audience="internal"):
     entries = {}
     for e in load_brain(root):
         if e["meta"]:
@@ -160,6 +168,8 @@ def check(root, text, now):
                     row["problems"].append(f"cited source '{c}' not found (check path and line numbers)")
                 else:
                     support.append(t)
+                    if audience == "external":
+                        row["warnings"].append(f"'{c}' is an internal document: confirm it may be shared")
                 continue
             e = entries.get(c)
             if not e:
@@ -167,6 +177,11 @@ def check(root, text, now):
                 continue
             support.append(entry_text(e))
             m = e["meta"]
+            sens = sensitivity_of(m)
+            if audience == "external" and sens == "confidential":
+                row["problems"].append(f"'{c}' is confidential: it must not be used in material leaving the business")
+            elif audience == "external" and sens == "internal":
+                row["warnings"].append(f"'{c}' is internal: confirm it may be shared")
             if e["archived"] or m.get("status") in ("superseded", "archived"):
                 row["warnings"].append(f"'{c}' is {m.get('status', 'archived')}: say it is historical or cite the current entry")
             if m.get("status") in ("disputed", "draft"):
@@ -213,13 +228,20 @@ def main(argv):
         return 2
     text = sys.stdin.read() if src == "-" else open(src, encoding="utf-8").read()
     now = today(args[args.index("--today") + 1]) if "--today" in args else today()
-    res = check(root, text, now)
+    audience = args[args.index("--audience") + 1] if "--audience" in args else "internal"
+    res = check(root, text, now, audience)
     fails = [r for r in res if r["status"] in ("fail", "uncited")]
     warns = [r for r in res if r["status"] == "warn"]
     oks = [r for r in res if r["status"] == "ok"]
+    logged = None
+    if "--log" in args and not fails:
+        from impact import log_output
+        cites = [c.strip() for r in res for c in r.get("citations", [])]
+        opt = lambda n, d="": args[args.index(n) + 1] if n in args and args.index(n) + 1 < len(args) else d
+        logged = log_output(root, cites, opt("--kind", "answer"), opt("--log"), opt("--recipient"), audience)
     if "--json" in args:
         print(json.dumps({"supported": len(oks), "warnings": len(warns), "failures": len(fails),
-                          "sentences": res}, indent=2, ensure_ascii=False))
+                          "sentences": res, "logged": logged["id"] if logged else None}, indent=2, ensure_ascii=False))
     else:
         print(f"Citation check: {len(oks)} supported, {len(warns)} with warnings, {len(fails)} to fix.")
         for r in fails + warns:
@@ -229,6 +251,10 @@ def main(argv):
                 print(f"   - {p}")
             for w in r["warnings"]:
                 print(f"   - {w}")
+        if logged:
+            print(f"\nLogged as {logged['id']}: {len(logged['citations'])} cited entries recorded for impact alerts.")
+        elif "--log" in args:
+            print("\nNot logged: fix the failures first.")
     return 1 if fails else 0
 
 

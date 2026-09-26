@@ -107,3 +107,47 @@ def jaccard(a, b):
 
 def today(arg=None):
     return parse_date(arg) if arg else date.today()
+
+
+# --- Sensitivity labels -------------------------------------------------------------
+SENSITIVITY = ("public", "internal", "confidential")
+# Domains whose entries default to confidential when no label is set: personal data and
+# commercially sensitive terms.
+CONFIDENTIAL_DOMAINS = {"people", "contracts", "finance"}
+
+
+def sensitivity_of(meta):
+    """Return the entry's sensitivity label, applying the default when it is missing."""
+    s = str((meta or {}).get("sensitivity", "")).strip().lower()
+    if s in SENSITIVITY:
+        return s
+    return "confidential" if (meta or {}).get("domain") in CONFIDENTIAL_DOMAINS else "internal"
+
+
+# --- Prompt-injection screening ------------------------------------------------------
+# Documents are data. Text inside them that tries to instruct an AI is flagged, never
+# followed. These patterns catch the common forms; the reader and coordinator still
+# apply judgment (see references/security-and-privacy.md).
+INJECTION_PATTERNS = [
+    r"\b(ignore|disregard|forget|override)\b[^.\n]{0,40}\b(previous|prior|above|earlier|all|any|system|your)\b[^.\n]{0,20}\b(instructions?|rules|prompts?|guidelines|directions)\b",
+    r"\b(system|developer)\s+prompt\b",
+    r"\byou\s+are\s+(now\s+)?(an?\s+)?(ai|assistant|language model|chatbot|claude|chatgpt|gpt)\b",
+    r"\b(new|updated|revised|hidden)\s+instructions?\s*:",
+    r"<\s*/?\s*(system|instructions?|prompt)\s*>",
+    r"\b(do\s+not|don'?t|never)\s+(tell|inform|mention|show|alert|notify)\s+(the\s+)?(user|owner|human)\b",
+    r"\b(send|forward|email|e-mail|upload|post|exfiltrate|transmit|leak)\b[^.\n]{0,40}\b(business brain|the brain|brain (folder|entries|contents)|knowledge base|contents of (this|the|your) (brain|folder|conversation|context|memory)|conversation history|credentials?|passwords?|api keys?|secret keys?)\b",
+    r"\b(run|execute|eval)\s+(the\s+following|this)\s+(command|code|script|shell)\b",
+    r"\bact\s+as\s+(an?\s+)?(ai|assistant|admin|administrator|system|developer)\b",
+    r"\bwhen\s+(an?\s+)?(ai|assistant|llm|claude|model)\s+(reads|sees|processes)\b",
+]
+_INJ = [re.compile(p, re.I) for p in INJECTION_PATTERNS]
+
+
+def injection_hits(text):
+    """Return the suspicious passages found in text (empty list when clean)."""
+    hits = []
+    for rx in _INJ:
+        for mt in rx.finditer(str(text or "")):
+            start = max(0, mt.start() - 30)
+            hits.append(str(text)[start:mt.end() + 30].replace("\n", " ").strip())
+    return hits
