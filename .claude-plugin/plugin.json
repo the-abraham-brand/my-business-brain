@@ -1,7 +1,7 @@
 {
   "name": "my-business-brain",
-  "version": "1.0.0",
-  "description": "My Business Brain by Abraham: a self-healing second brain for your business inside Claude. Remembers your products, prices, customers, policies and decisions with sources, flags conflicts and overlaps, vets official information against trusted sources, analyses the business to consulting standard, and puts contract deadlines on your calendar (Contract Clocks).",
+  "version": "1.1.0",
+  "description": "My Business Brain by Abraham: a self-healing second brain for your business inside Claude. Remembers your products, prices, customers, policies and decisions with sources, answers with hybrid search and verified citations, flags conflicts and overlaps, bulk-loads documents with parallel readers, vets official information with an independent checker against trusted sources, analyses the business to consulting standard, and puts contract deadlines on your calendar (Contract Clocks).",
   "author": {
     "name": "Abraham",
     "url": "https://theabrahambrand.com"
