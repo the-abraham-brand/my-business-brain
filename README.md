@@ -13,10 +13,12 @@ Business knowledge lives in price sheets, contracts, inboxes and people's heads.
 | Job | What you get |
 |---|---|
 | **Remember** | Documents, messages and decisions become one-fact entries, each with a source and a review date |
-| **Answer** | Answers about your business, answer first, citing the entries used |
+| **Answer** | Answers about your business, answer first. Hybrid search finds the right entries and source-document sections; every cited figure, date and quote is checked against its entry before the answer goes out |
 | **Heal** | Finds conflicts, duplicates, overlaps, stale and unsourced entries and broken links; fixes housekeeping itself and brings you each decision with a recommendation and a health score |
 | **Vet** | Official information (laws, fees, tax rates, deadlines) checked against the most authoritative, current sources for your jurisdiction before it is stored |
 | **Analyse** | Consulting-grade analysis: hypotheses, MECE issue trees, numbers computed in code, answer-first recommendations with impact, owner, timing and risk |
+| **Bulk load** | Drop in dozens of documents: parallel readers extract the facts, a merge planner sorts each one into new, refresh, conflict, overlap or duplicate, and only the coordinator writes to the brain |
+| **Independent check** | Official rules, conflict recommendations and high-stakes analysis are re-derived by a separate checker that never sees the first answer; any disagreement comes to you |
 | **Contract Clocks** | Every contract longer than a month gets its end, renewal and notice dates extracted, confirmed with you, and added to Google, Outlook, Apple or any open-source calendar with reminders 7 days, 3 days and 24 hours before |
 
 It learns as you use it: corrections become lessons it applies next time, your preferences are remembered, and questions it could not answer become suggestions for what to document.
@@ -49,16 +51,20 @@ business-brain/
 
 Entries are never deleted: when a fact changes, the new entry supersedes the old one, so the brain can also answer "what did we charge last year?"
 
-Helper scripts (Python 3, standard library only) run the health check, rebuild the index and contract register, calculate contract dates and build calendar files.
+Helper scripts (Python 3, standard library only, nothing to install) search the brain, check citations, plan bulk loads, run the health check, rebuild the index and contract register, calculate contract dates and build calendar files. Search and the health check stay well under a second on a brain of 2,500 entries.
 
 ## Rules it keeps
 
-- Every fact has a source; every answer cites its entries.
+- Every fact has a source; every answer cites its entries, and every citation is verified.
 - One truth per fact: contradictions are raised with you, never overwritten silently.
-- It proposes; you decide. Only housekeeping is automatic.
+- It proposes; you decide. Only housekeeping is automatic, and every action sits on a clear escalation ladder: do, propose, must ask, stop and advise.
 - Official information is vetted against authoritative sources, not blogs or summaries.
 - It says plainly when it does not know.
 - It informs decisions; legal, tax and financial conclusions should be confirmed with a professional.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## Install
 
