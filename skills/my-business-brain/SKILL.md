@@ -12,13 +12,13 @@ It has six jobs. Read the reference file for a job before doing it.
 | Job | When | Reference |
 |---|---|---|
 | **Remember** | New information arrives: a document, a message, a decision, a correction | `references/knowledge-model.md` |
-| **Answer** | The user asks about their business | `references/knowledge-model.md` |
+| **Answer** | The user asks about their business | `references/retrieval-and-citations.md` |
 | **Heal** | After every write, on request, and on a schedule | `references/self-healing.md` |
 | **Vet** | Official information is needed (laws, rates, fees, deadlines, standards) | `references/trusted-sources.md` |
 | **Analyse** | The user wants performance analysis, a diagnosis or a recommendation | `references/analytics-playbook.md` |
 | **Contract Clocks** | A contract or agreement is shared | `references/contract-clocks.md` |
 
-Adaptive learning runs through all six: see `references/adaptive-learning.md`.
+Adaptive learning runs through all six: see `references/adaptive-learning.md`. Big jobs (bulk loads, high-stakes findings) run as a small team of parallel readers and an independent checker: see `references/orchestration.md`.
 
 ## Where the brain lives
 
@@ -30,11 +30,11 @@ Resolve the location once per conversation, in this order:
 
 Never scatter brain files elsewhere, and never delete an entry: supersede or archive it (see `references/knowledge-model.md`).
 
-The folder layout and entry format are defined in `references/knowledge-model.md`. Helper scripts in `scripts/` rebuild the index, run the health check and build calendar files; run them with Python 3 where code execution is available, and apply the same rules by hand where it is not.
+The folder layout and entry format are defined in `references/knowledge-model.md`. Helper scripts in `scripts/` search the brain (`brain_search.py`), check citations (`cite_check.py`), plan bulk loads (`ingest_plan.py`), rebuild the index, run the health check, calculate contract dates and build calendar files; run them with Python 3 where code execution is available, and apply the same rules by hand where it is not.
 
 ## Principles
 
-1. **Every fact has a source.** Each entry records where it came from and when: a document, the user's statement, or a verified external source. Answers cite entries.
+1. **Every fact has a source.** Each entry records where it came from and when: a document, the user's statement, or a verified external source. Answers cite entries, and every citation is checked before the answer goes out.
 2. **One truth per fact.** Before writing, look for an existing entry on the same thing. Update or supersede it; never create a silent duplicate. If the new information contradicts the old, stop and ask the user which is right (see `references/self-healing.md`).
 3. **The user decides; the brain proposes.** Safe housekeeping (index, formatting, links) is done automatically. Anything that changes what the business "knows" is proposed and confirmed first.
 4. **Official information is vetted.** Laws, regulations, tax rates, government fees, licensing rules and deadlines are checked against trusted, current sources before being stored or reported, and carry a review date.
@@ -43,12 +43,15 @@ The folder layout and entry format are defined in `references/knowledge-model.md
 
 ## Answering a question
 
-1. Search the brain (index first, then entries) for the relevant entries.
-2. Answer from active entries, citing each one by title (and file name). Note any entry that is past its review date or marked disputed.
-3. If entries conflict, do not pick one silently: show both and ask which is current, then heal.
-4. If the brain has no answer, say so, answer from general knowledge only if clearly labelled as such, and offer to add the answer once the user confirms it.
-5. If the answer depends on official information, vet it first.
-6. Log the question in `_system/questions.md` (for gap analysis in adaptive learning).
+Follow `references/retrieval-and-citations.md`:
+
+1. **Search.** Write 2–4 phrasings of the question (the user's words, synonyms, the business's own terms, the likely key) and run `scripts/brain_search.py <brain> --q "..." --q "..."`. Read the top results and judge which really answer the question. For a small brain, the index is enough.
+2. **Draft** the answer from active entries, answer first, with a `[[id]]` or source-lines citation after every factual sentence and `[calc]` on anything you calculated.
+3. **Verify** with `scripts/cite_check.py <brain> <draft>`. Fix every failure; carry every warning (overdue, disputed, low confidence, historical) into the answer.
+4. If entries conflict, do not pick one silently: show both and ask which is current, then heal.
+5. If the brain has no answer, say so, answer from general knowledge only if clearly labelled as such, and offer to add the answer once the user confirms it.
+6. If the answer depends on official information, vet it first; for high stakes, have it independently checked (`references/orchestration.md`).
+7. Log the question in `_system/questions.md` (for gap analysis in adaptive learning).
 
 ## After every session that changed the brain
 
