@@ -4,6 +4,7 @@
   add_state.py <brain> answer-log   two logged outputs that quoted the Scale plan at AED 14,999
   add_state.py <brain> golden       golden questions + a snapshot a week ago, then a quiet change
                                     to the refund window (14 days -> 30 days) with no source
+  add_state.py <brain> arabic       an HR note in Arabic with a new hire's salary and commission
   add_state.py <brain> week         a snapshot a week ago, then a week of changes: Scale plan
                                     superseded (14,999 -> 15,999) and a new Enterprise add-on price
 Standard library only; uses the plugin's own scripts to write the logs and snapshots.
@@ -76,6 +77,16 @@ def week(brain):
           "The call recording add-on costs AED 299 per month per account, excluding VAT.")
 
 
+def arabic(brain):
+    # Fictional HR note: "Rania Haddad joined Falcon Voice as Head of Sales from 1 October 2026.
+    # Monthly salary: AED 32,000, plus 3% commission on new sales. Workplace: Dubai office."
+    with open(os.path.join(brain, "sources", "hr-note-ar.md"), "w", encoding="utf-8") as f:
+        f.write("# مذكرة الموارد البشرية - سبتمبر 2026\n\n"
+                "انضمت رانيا حداد إلى فالكون فويس بصفة رئيسة المبيعات اعتباراً من 1 أكتوبر 2026.\n\n"
+                "الراتب الشهري: 32,000 درهم، بالإضافة إلى عمولة 3% على المبيعات الجديدة.\n\n"
+                "مكان العمل: مكتب دبي.\n")
+
+
 if __name__ == "__main__":
     brain, mode = sys.argv[1], sys.argv[2]
-    {"answer-log": answer_log, "golden": golden, "week": week}[mode](brain)
+    {"answer-log": answer_log, "golden": golden, "week": week, "arabic": arabic}[mode](brain)

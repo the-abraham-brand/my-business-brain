@@ -34,18 +34,22 @@ import sys
 from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brainlib import load_brain, parse_date, today, sensitivity_of
+from brainlib import load_brain, parse_date, today, sensitivity_of, fold
 
 CITE_RE = re.compile(r"\[\[([^\]]+)\]\]")
 QUOTE_RE = re.compile(r"[\"“]([^\"”]{4,})[\"”]")
 MONTHS = {m: i for i, m in enumerate(
     ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
+# Month names as written in the Gulf (after folding: alef variants unified)
+AR_MONTHS = {"يناير": 1, "فبراير": 2, "مارس": 3, "ابريل": 4, "مايو": 5, "يونيو": 6, "يوليو": 7,
+             "اغسطس": 8, "سبتمبر": 9, "اكتوبر": 10, "نوفمبر": 11, "ديسمبر": 12}
 MON = r"(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?"
 DATE_PATTERNS = [
     (re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b"), "ymd"),
     (re.compile(r"\b(\d{1,2})(?:st|nd|rd|th)?\s+" + MON + r",?\s+(\d{4})\b", re.I), "dmy"),
     (re.compile(r"\b" + MON + r"\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})\b", re.I), "mdy"),
     (re.compile(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b"), "slash"),
+    (re.compile(r"(?<!\d)(\d{1,2})\s+(" + "|".join(AR_MONTHS) + r")\s+(\d{4})(?!\d)"), "dmy_ar"),
 ]
 NUM_RE = re.compile(r"(?<![\w.])(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?(?![\w])")
 
@@ -61,6 +65,8 @@ def find_dates(text):
                     d = date(int(g[0]), int(g[1]), int(g[2]))
                 elif kind == "dmy":
                     d = date(int(g[2]), MONTHS[g[1][:3].lower()], int(g[0]))
+                elif kind == "dmy_ar":
+                    d = date(int(g[2]), AR_MONTHS[g[1]], int(g[0]))
                 elif kind == "mdy":
                     d = date(int(g[2]), MONTHS[g[0][:3].lower()], int(g[1]))
                 else:  # dd/mm/yyyy, the common convention outside the US
@@ -84,6 +90,7 @@ def find_numbers(text):
 
 
 def facts(text):
+    text = fold(text)  # Arabic-Indic digits and separators, Arabic month spellings
     dates, rest = find_dates(text)
     return dates, find_numbers(rest)
 
@@ -100,7 +107,7 @@ def sentences(text):
         if not block:
             continue
         # split on sentence ends that are followed by a capital letter, keeping citations attached
-        for s in re.split(r"(?<=[.!?])\s+(?=[A-Z\"“])", block):
+        for s in re.split(r"(?<=[.!?؟])\s+(?=[A-Z\"“\u0621-\u064A])", block):
             s = s.strip()
             if s:
                 parts.append(s)

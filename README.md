@@ -2,108 +2,139 @@
 
 **By [Abraham](https://theabrahambrand.com)**
 
-A second brain for your business, inside Claude. It remembers what your business knows, keeps it correct as things change, and puts it to work.
+**My Business Brain gives your business one memory it can trust. It keeps what your company knows in one place, keeps it right as things change, and puts it to work in English and Arabic. Every answer, proposal and deadline can be traced back to where it came from.**
 
-## Why it exists
+Most businesses keep their knowledge in price sheets, contracts, inboxes and a few people's heads. Over time it drifts. Two documents quote different prices. A policy changes, but the old version is still being sent to customers. A notice deadline slips past and a contract you meant to cancel renews for another year.
 
-Business knowledge lives in price sheets, contracts, inboxes and people's heads. It drifts: two documents quote different prices, a policy changes but the old one is still in circulation, a notice deadline passes and a contract renews for another year. My Business Brain gathers that knowledge into one local, structured knowledge bank, checks it continuously, and tells you when something needs your decision.
+My Business Brain lives inside Claude and deals with this in four ways.
 
-## What it does
+## 1. It remembers what your business knows, in English or Arabic
 
-| Job | What you get |
+- Share a document, a message or a decision and it becomes a set of short entries, one fact each. Every entry says where it came from, when to check it again, and who is allowed to see it.
+- Drop in a folder of documents and it reads them in parallel. Each fact is sorted as new, an update, a duplicate, or something that clashes with what the brain already knows. Nothing is written until that's done.
+- Mention something in passing ("we've moved the Scale plan to AED 15,999") and it offers to remember it, or just remembers it if you prefer.
+- Everything is plain text in a folder you own. Nothing goes anywhere you haven't asked it to.
+
+## 2. It keeps that knowledge right as the business changes
+
+- A regular health check finds clashing facts, duplicates, stale entries and missing sources. It tidies up on its own and brings you the real decisions, each with a recommendation and a health score.
+- When a fact changes, the old one is kept as history rather than overwritten, so you can still ask "what did we charge last year?"
+- The answers you rely on most, like headline prices, refund terms and key dates, are re-checked every time. If one changes quietly, you hear about it.
+- It keeps a log of every answer, proposal and quote that goes out and the facts each one used. When a price changes, it tells you which customers were sent the old one.
+- A weekly summary shows what changed, and it flags facts that keep flipping back and forth.
+- Laws, fees, tax rates and official deadlines are checked against the most authoritative current sources before they're stored. For anything important, a second, independent checker works it out again without seeing the first answer.
+
+## 3. It puts that knowledge to work
+
+- Ask it anything about your business and you get the answer first, with its sources. Every figure, date and quote is checked against the brain before you see it. If the brain doesn't know, it says so.
+- Ask for an analysis and you get what a good consultant would give you. That means a clear recommendation up front, the numbers worked out properly, and the impact, owner, timing and risks spelled out.
+- Share a contract and it pulls out the end, renewal and notice dates, confirms them with you, and puts them in Google, Outlook, Apple or any other calendar. You get reminders 7 days, 3 days and 24 hours before each date.
+- At the start of each session it gives Claude a short brief: what's waiting for you and which deadlines are close.
+
+## 4. It stays safe and accountable
+
+- Every fact is marked public, internal or confidential. Salaries, contract values, margins and bank details never end up in anything that leaves the business.
+- Documents can't give it orders. If a file contains hidden text trying to instruct an AI, that text is set aside and shown to you, never followed.
+- The small calls it makes all day, like which area a fact belongs to or how urgent something is, have fixed answers to choose from. Clear cases are settled by simple rules. For the rest, it tracks how often it gets them right and adjusts how sure it lets itself be. When it's confident it goes ahead, when it's unsure it asks you, and when it's guessing it gets a second opinion. Correct it the same way three times and it suggests a rule you can approve.
+- It proposes and you decide. Only housekeeping happens automatically. Anything that changes what the business knows is checked with you first.
+
+## Arabic, built in
+
+If you do business in the Gulf or anywhere Arabic is spoken, Arabic isn't an afterthought. It's handled all the way through.
+
+| Where | What it does |
 |---|---|
-| **Remember** | Documents, messages and decisions become one-fact entries, each with a source and a review date |
-| **Answer** | Answers about your business, answer first. Hybrid search finds the right entries and source-document sections; every cited figure, date and quote is checked against its entry before the answer goes out |
-| **Heal** | Finds conflicts, duplicates, overlaps, stale and unsourced entries and broken links; fixes housekeeping itself and brings you each decision with a recommendation and a health score |
-| **Vet** | Official information (laws, fees, tax rates, deadlines) checked against the most authoritative, current sources for your jurisdiction before it is stored |
-| **Analyse** | Consulting-grade analysis: hypotheses, MECE issue trees, numbers computed in code, answer-first recommendations with impact, owner, timing and risk |
-| **Bulk load** | Drop in dozens of documents: parallel readers extract the facts, a merge planner sorts each one into new, refresh, conflict, overlap or duplicate, and only the coordinator writes to the brain |
-| **Independent check** | Official rules, conflict recommendations and high-stakes analysis are re-derived by a separate checker that never sees the first answer; any disagreement comes to you |
-| **Security** | Every fact carries a sensitivity label (public, internal, confidential). Confidential facts such as salaries, contract values and margins are kept out of anything that leaves the business, and text in documents that tries to instruct an AI is quarantined and reported, never followed |
-| **Decide with confidence** | Routine calls (is this worth remembering, which area, how sensitive, does this contract qualify) have fixed options. Clear cases are settled by rules; the rest carry a confidence score: high goes ahead, medium asks you, low goes to a check. Every call is logged, its accuracy measured, and a correction you make three times becomes a rule you can approve |
-| **Guard against regression** | The answers your business relies on (headline prices, refund terms, key dates) are replayed at every health check, so a value that changes quietly is caught. Every answer, proposal and quote that leaves the business is logged with the facts it used, so when a price changes you are told which customers received the old one. A weekly digest shows what changed, and facts that keep flip-flopping are flagged |
-| **Contract Clocks** | Every contract longer than a month gets its end, renewal and notice dates extracted, confirmed with you, and added to Google, Outlook, Apple or any open-source calendar with reminders 7 days, 3 days and 24 hours before |
+| Conversation | Replies in whichever language you write in, and stores each fact in the language it came in |
+| Search | Reads Arabic entries and documents, and copes with spelling variations (أ, إ and آ, or ة and ه) and attached words like the article, so استرداد finds الاسترداد |
+| Figures and dates | Understands Arabic-Indic numbers (٣٢٬٠٠٠ is 32,000) and Arabic month names (١ أكتوبر ٢٠٢٦), so it catches a wrong figure in an Arabic draft and doesn't mistake the same price in different numerals for a clash |
+| Confidentiality | Recognises salaries, IBANs, account numbers, passports, Emirates IDs, profit margins, passwords and commission in Arabic, and keeps them confidential |
+| Security | Spots instructions hidden in Arabic documents, like تجاهل التعليمات السابقة ("ignore previous instructions") or لا تخبر المستخدم ("don't tell the user") |
+| Judgement | Asks you before acting on Arabic text until it has proven itself on Arabic, because rules and confidence learned in English don't automatically carry over |
 
-It learns as you use it: corrections become lessons it applies next time, your preferences are remembered, and questions it could not answer become suggestions for what to document.
+It also gets better as you use it. Corrections become lessons, your preferences stick, and questions it couldn't answer become suggestions for what to write down next.
+
+**Getting started:** install the plugin (see [Install](#install)), run `/my-business-brain:setup`, and pick the folder where your brain should live.
 
 ## Settings
 
-When you enable the plugin you can set, once:
+You set these once when you enable the plugin, and can change them any time (`/config` in Claude Code).
 
-| Setting | What it does |
+| Setting | What it's for |
 |---|---|
-| Brain folder | Where your brain lives, so every conversation finds it |
+| Brain folder | Where your brain lives, so every conversation can find it |
 | Calendar | Google, Outlook, an `.ics` file for Apple and open-source calendars, or ask each time |
-| Currency, time zone, weekend days | Used in answers, calendar events and weekend flags on deadlines (Saturday–Sunday or Friday–Saturday) |
-| Remembering facts | Ask before remembering what you mention, or remember automatically |
-| Session brief | At the start of each session, Claude hears what is waiting and which deadlines are near |
-| Auto-apply and ask-me confidence | How sure Claude must be to go ahead on a routine call (default 0.9), and below which it sends the call for checking rather than asking you (default 0.6) |
-
-Change them any time in the plugin's settings (`/config` in Claude Code).
-
-## Built-in agents and automatic checks
-
-- **`brain-reader`**: reads documents in bulk loads. It can only read, so a poisoned document cannot make it write, run commands or go online.
-- **`brain-checker`**: re-checks official rules, figures and high-stakes conclusions without seeing the first answer.
-- **Session brief** (Claude Code and Cowork): decisions waiting, contract deadlines in the next weeks, and the brain's health, at the start of each session.
-- **Quick check after every entry change** (Claude Code and Cowork): the index is rebuilt and any conflict or suspicious text in that entry is raised straight away.
-
-On claude.ai, where plugin hooks don't run, the skills do the same checks by instruction.
+| Currency, time zone, weekend | Used in answers, calendar events and weekend warnings on deadlines (Saturday–Sunday or Friday–Saturday) |
+| Remembering facts | Ask before remembering things you mention, or remember them automatically |
+| Session brief | Whether Claude hears what's waiting and which deadlines are near at the start of each session |
+| Auto-apply and ask-me confidence | How sure it must be before going ahead on a routine call (default 0.9), and below which it gets a second opinion instead of asking you (default 0.6). These are compared with its measured track record, not just its own say-so |
 
 ## Commands
 
-| Command | Use it to |
+| Command | What it does |
 |---|---|
-| `/my-business-brain:setup` | Create the brain in a folder you choose |
-| `/my-business-brain:learn` | Add documents or facts |
-| `/my-business-brain:ask` | Ask a question about your business |
-| `/my-business-brain:heal` | Run a full health check |
-| `/my-business-brain:analyze` | Get an analysis and recommendation |
-| `/my-business-brain:contract-clocks` | Put a contract's key dates on your calendar |
+| `/my-business-brain:setup` | Creates the brain in a folder you choose |
+| `/my-business-brain:learn` | Adds documents or facts |
+| `/my-business-brain:ask` | Answers a question about your business |
+| `/my-business-brain:heal` | Runs a full health check |
+| `/my-business-brain:analyze` | Gives you an analysis and a recommendation |
+| `/my-business-brain:contract-clocks` | Puts a contract's key dates on your calendar |
 
-You rarely need the commands: the core skill switches on whenever you share business information or ask about your business, and Contract Clocks is offered whenever you share a contract.
+You'll rarely need them. The brain switches on by itself when you share business information or ask about your business, and it offers Contract Clocks whenever you share a contract.
 
-## How the brain is stored
+## What's under the hood
 
-Plain Markdown files in a folder you own. Nothing is sent anywhere you have not asked for.
+- **Two helper agents.** `brain-reader` reads documents during bulk loads and can only read, so a booby-trapped file can't make it write, run commands or go online. `brain-checker` double-checks official rules, figures and big conclusions without seeing the first answer.
+- **Automatic checks** in Claude Code and Cowork: a brief at the start of each session, and a quick check every time an entry changes. On claude.ai, where plugins can't run these hooks, the skills do the same checks themselves.
+- **Plain files.** The brain is a folder of Markdown files:
 
-```
-business-brain/
-  BRAIN.md  INDEX.md
-  entries/<domain>/<id>.md
-  contracts/register.md  contracts/calendar/*.ics
-  analytics/
-  _system/  changelog, health report, decisions needed, lessons, preferences, questions, archive/,
-           decision log, rules, golden questions, answer log, snapshots/, digests/
-```
+  ```
+  business-brain/
+    BRAIN.md  INDEX.md
+    entries/<area>/<fact>.md
+    contracts/register.md  contracts/calendar/*.ics
+    analytics/
+    _system/  changelog, health report, decisions waiting, lessons, preferences, questions,
+             archive/, decision log, rules, key questions, answer log, snapshots/, weekly digests/
+  ```
 
-Entries are never deleted: when a fact changes, the new entry supersedes the old one, so the brain can also answer "what did we charge last year?"
+- **No installs.** The helper scripts use plain Python 3 with nothing extra. Search and the health check take well under a second, even with 2,500 entries.
 
-Helper scripts (Python 3, standard library only, nothing to install) search the brain, check citations, plan bulk loads, run the health check, rebuild the index and contract register, calculate contract dates and build calendar files. Search and the health check stay well under a second on a brain of 2,500 entries.
+## The rules it lives by
 
-## Rules it keeps
+- Every fact has a source, and every answer shows its sources after checking them.
+- Confidential facts stay inside the business. Documents are information, never instructions.
+- There is one truth per fact. When two sources disagree, you're asked; nothing is quietly overwritten.
+- It proposes, you decide.
+- Official information comes from official sources, not blogs or summaries.
+- It earns its confidence, and it measures whether it deserved it.
+- It says so when it doesn't know.
+- It helps you decide. For legal, tax and financial conclusions, check with a professional.
 
-- Every fact has a source; every answer cites its entries, and every citation is verified.
-- Confidential facts never leave the business; documents are data, never instructions.
-- One truth per fact: contradictions are raised with you, never overwritten silently.
-- It proposes; you decide. Only housekeeping is automatic, and every action sits on a clear escalation ladder: do, propose, must ask, stop and advise.
-- Official information is vetted against authoritative sources, not blogs or summaries.
-- Routine calls are bounded: a fixed list of options, rules first, and a confidence it must earn. A valid choice can still be wrong, so accuracy is measured and the bar rises when it slips.
-- It says plainly when it does not know.
-- It informs decisions; legal, tax and financial conclusions should be confirmed with a professional.
+## How it's tested
 
-## Tested
+- **43 unit tests** of the scripts and hooks, run on Linux, macOS and Windows with every change.
+- **15 behaviour tests**, each run with and without the plugin on a made-up company's brain.
+  - **5 show what the plugin adds.** With it, all five passed. Without it, Claude:
+    - gave no health score and missed the problems planted for it;
+    - made a calendar file with no reminders;
+    - didn't rebuild the index after a price change;
+    - couldn't say which customers had been quoted an old price;
+    - missed part of the week's changes.
+  - **10 make sure the basics never slip:**
+    - answers cite the right facts;
+    - clashes are raised, not overwritten;
+    - wrong figures in a draft are caught;
+    - notice deadlines are worked out correctly;
+    - confidential details stay out of emails;
+    - hidden instructions are refused;
+    - it admits when it doesn't know;
+    - past prices come from the archive;
+    - a quietly changed answer is spotted;
+    - pay details in an Arabic HR note stay out of a public post.
 
-- `tests/`: 35 unit tests of the scripts and hooks, run on Linux, macOS and Windows on every commit.
-- `evals/`: 14 behaviour tests run with `claude plugin eval`, each with and without the plugin, on a fictional company's brain:
-  - **5 contribution tests** measure what the plugin adds. In the first run (one run per arm, 26 September 2026) all three passed with the plugin. Without it, Claude gave no health score and missed planted problems, produced a calendar file with no reminders, and did not rebuild the index after a price change. Scores with / without: health check 1.0 / 0, calendar reminders 1.0 / 0.33, price change 1.0 / 0.75. Two more were added with decision gates and regression guards: after a price change the plugin named the proposal and the quote that had used the old price (1.0 / 0 without it), and it reported the week's changes completely (1.0 / 0.67).
-  - **9 guard tests** make sure the essentials never regress: correct cited answers, conflicts raised instead of overwritten, wrong figures caught, notice deadlines, confidential data kept out of outgoing email, injected instructions refused, honesty when the brain doesn't know, history from the archive, and a key answer that changed quietly being caught at the health check. All passed.
+    All passed.
 
-See [RELEASING.md](RELEASING.md) for how releases are checked and tagged.
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md).
+See [RELEASING.md](RELEASING.md) for how releases are checked, and [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
 
 ## Install
 
@@ -114,14 +145,16 @@ In Claude Code:
 /plugin install my-business-brain@my-business-brain
 ```
 
-Requires Claude Code 2.1.271 or later (for the settings pickers). In the Claude app, add the plugin from the directory or upload the packaged `.plugin` file. The brain works best with a connected folder (so it can keep its files) and a connected calendar (for one-click Contract Clocks).
+You'll need Claude Code 2.1.271 or later for the settings menus. In the Claude app, add it from the plugin directory or upload the `.plugin` file from the [latest release](https://github.com/the-abraham-brand/my-business-brain/releases/latest). It works best with a connected folder, so it can keep its files, and a connected calendar, for one-click Contract Clocks.
 
 ## Works well with
 
-- [Top-Down Brief](https://github.com/the-abraham-brand/top-down-brief): answer-first official communications.
-- [Top-Down Verify](https://github.com/the-abraham-brand/top-down-verify): fact-check any document before it goes out.
-- [Top-Down Startup Pitch Deck](https://github.com/the-abraham-brand/top-down-startup-pitch-deck): research-backed investor decks.
+All by [Abraham](https://theabrahambrand.com), and made to work together:
+
+- [Top-Down Brief](https://github.com/the-abraham-brand/top-down-brief) turns your brain's facts into clear, answer-first emails, memos and reports.
+- [Top-Down Verify](https://github.com/the-abraham-brand/top-down-verify) fact-checks any document before it goes out.
+- [Top-Down Startup Pitch Deck](https://github.com/the-abraham-brand/top-down-startup-pitch-deck) builds a research-backed investor deck from what your business knows.
 
 ## Credits
 
-Created by [Abraham](https://theabrahambrand.com). MIT licence.
+Made by [Abraham](https://theabrahambrand.com). MIT licence.

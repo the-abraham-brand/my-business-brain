@@ -62,8 +62,8 @@ Overage beyond the included minutes is billed per [[pricing-overage-rates]].
 
 | Field | Required | Meaning |
 |---|---|---|
-| `id` | yes | Unique, lowercase, hyphenated; also the file name |
-| `title` | yes | Plain-language name |
+| `id` | yes | Unique, lowercase, hyphenated, in English letters (also for Arabic entries); also the file name |
+| `title` | yes | Plain-language name, in the language of the source (an Arabic title may be followed by an English one) |
 | `type` | yes | One of: fact, price, product, customer, supplier, person, policy, procedure, contract, decision, metric, goal, glossary, reference, lesson |
 | `domain` | yes | Folder it lives in |
 | `key` | for facts with a single value | Canonical identifier of *what* is being stated (e.g. `price.growth-plan.monthly`, `policy.refund.window-days`). Two active entries with the same key are a conflict or a duplicate |

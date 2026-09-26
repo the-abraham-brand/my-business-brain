@@ -1,45 +1,77 @@
 # Changelog
 
+## 1.3.0 (2026-09-26)
+
+This release is about judgement and language. The brain now makes its small everyday calls more carefully, keeps score of how often it gets them right, and handles Arabic properly throughout.
+
+**Smarter everyday calls** (inspired by the "System 1" decision models Laya and Jev)
+- Every routine call is now one of three kinds:
+  - a choice from a fixed list, with a short description of each option;
+  - a score on a scale, such as urgency from 0 to 3;
+  - a yes/no question answered with a probability.
+- Three new built-in calls:
+  - how urgent something is (worked out from its due date when there is one);
+  - how much is at stake;
+  - whether something is official information that must be checked at the source.
+- When something new arrives, all the small questions about it are asked together in one go. Anything a rule can settle comes pre-answered, and anything that needs you is gathered into a single question.
+- Answers that don't fit the options are refused, and close calls between two options always come to you.
+- If you add your own decision types, they're checked for common mistakes. Examples: too many options, yes/no hidden inside a list, or questions phrased in the negative.
+
+**It keeps score, and adjusts**
+- For every kind of call, the brain now tracks how often it was right, how well its confidence matched reality, and (for scores) how far off it was.
+- Once it has 20 checked calls of a kind, it corrects its own confidence to match its track record. In testing, a judge that claimed 95% certainty but was right 70% of the time was treated as 70% sure, so it asked instead of acting.
+
+**Arabic, built in**
+- Search reads Arabic and copes with spelling variations and attached words, so استرداد finds الاسترداد.
+- Arabic-Indic numbers (٣٢٬٠٠٠) and Arabic month names are understood, so wrong figures in Arabic drafts are caught and the same price in different numerals isn't flagged as a clash.
+- Salaries, bank details, IDs and similar are recognised as confidential in Arabic, and instructions hidden in Arabic documents are caught.
+- It replies in the language you write in and stores each fact in the language it came in.
+- On Arabic, or any language it hasn't yet proven itself on, it asks before acting until it has 20 checked calls in that language.
+- Arabic text displays and saves correctly on every platform, including Windows.
+
+**Also**
+- The README and plugin description have been rewritten in plain language, with a section on Arabic.
+- 43 unit tests (including Arabic search, figures and dates) and 15 behaviour tests. The new behaviour test checks that pay details in an Arabic HR note stay out of a public post.
+
 ## 1.2.0 (2026-09-26)
 
-**Decision gates** (after the bounded-decision idea)
-- New `decide.py`. Routine calls are bounded decision types with fixed options: capture, domain, sensitivity, document safety, contract qualifies, fact status; a business can add its own.
-- Rules first: approved rules, then built-in ones (salary or IBAN means confidential, `price.` keys belong in pricing, instruction-like text is suspicious, contracts of a month or less don't qualify).
-- Otherwise Claude records a choice with a confidence and follows the route: apply (≥ auto-apply setting, default 0.9), confirm with the user (≥ ask-me setting, default 0.6), or escalate to the checker. A close call between two options, or a rule that disagrees, always goes to the user.
-- Every decision is logged (`_system/decisions.jsonl`). Accuracy is measured per type: below 90% the auto-apply bar rises to 0.97, below 75% auto-apply stops, and it is restored at 95%. The same correction three times proposes a rule for the user to approve.
-- Bulk-load readers give each candidate a certainty; the planner holds back anything below the auto-apply bar for confirmation.
-- Two new settings: auto-apply and ask-me confidence. New reference: `decision-gates.md`.
+This release made the brain careful about its own decisions and alert to knowledge going wrong over time. It also gained helper agents, settings, automatic checks and proper privacy and security.
 
-**Knowledge regression and impact** (after ClearTrace-style snapshot regression)
-- New `golden.py`: golden questions the business relies on, replayed through search at every health check. A changed answer, a different entry or an answer search can no longer find is a High "knowledge regression"; `accept` sets a new baseline for intended changes. `propose` suggests the entries cited most often.
-- New `impact.py` and `cite_check.py --log`: every output that passes the citation check is logged with the entries and values it used. When a fact changes, the health check lists the outputs that used the old value ("2 past outputs used Scale plan = AED 14,999: proposal to Gulf Retail LLC; quote to Nour Clinics") so the user can follow up.
-- New `brain_diff.py`: one snapshot a day, a weekly digest of what was added, changed, superseded, relabelled or removed, and "unstable facts" whose value keeps changing or flips back.
-- The health check and the session brief report regressions, outdated outputs, unstable facts and decision accuracy. New reference: `knowledge-regression.md`.
+**Careful everyday calls**
+- The small calls the brain makes all day have fixed options to choose from:
+  - is this worth remembering;
+  - which area it belongs to;
+  - how sensitive it is;
+  - is this document safe;
+  - does this contract need tracking;
+  - is this new, an update, a clash or a duplicate.
+- Clear cases are settled by rules first. Examples: a salary or IBAN is confidential, and a contract of a month or less doesn't need tracking.
+- Otherwise the brain says how sure it is. Very sure, it goes ahead (0.9 by default). Fairly sure, it asks you (0.6 by default). Less sure than that, it gets a second opinion. A close call, or a rule that disagrees, always comes to you.
+- Every call is logged and scored against your corrections. If a kind of call keeps being corrected, the brain holds back and asks more often. Correct the same thing three times and it suggests a rule you can approve.
+- Two new settings let you choose how sure it must be before acting and before asking.
 
-**Tested behaviour**
-- `evals/`: 14 behaviour tests for `claude plugin eval`, each run with and without the plugin. Five measure what the plugin adds (health check with score and findings, calendar file with all three reminders, a price change superseded with history, log and index, past proposals and quotes named after a price change, the week's changes reported); in the first runs they scored 1.0 with the plugin against a mean of 0.35 without. Nine are guards that must never regress: answers cite the right entry, a contradicting fact is raised as a conflict instead of overwriting, a wrong price in a draft is caught, the contract notice deadline is worked out, confidential facts stay out of an outgoing email, instructions hidden in a document are reported and not followed, the brain says so when it does not know, past prices come from the archive, and a key answer that changed quietly is caught. They share one fictional test brain built by `evals/_fixtures/make_brain.py`.
-- `tests/`: 35 unit tests of the scripts and hooks, no model calls.
+**Catching knowledge that goes wrong**
+- Key questions: the answers you rely on most are re-checked at every health check, and a quiet change is flagged as high priority.
+- Impact alerts: every answer, proposal and quote that passes the source check is logged with the facts it used. When a fact changes, you're told who received the old version, for example "2 past outputs used Scale plan = AED 14,999: proposal to Gulf Retail LLC; quote to Nour Clinics".
+- Weekly changes: a daily snapshot feeds a weekly summary of what was added, changed or retired, and facts that keep flipping back and forth are flagged.
 
-**Built-in agents**
-- `brain-reader`: read-only (Read, Glob, Grep), returns candidate facts as JSON for bulk loads.
-- `brain-checker`: independent checker for official information, figures and high-stakes conclusions; reads and searches, never writes, never sees the first answer.
+**Helper agents**
+- `brain-reader` reads documents during bulk loads and can only read, so a bad document can't make it do anything.
+- `brain-checker` double-checks official information and big conclusions without seeing the first answer.
 
-**Settings**
-- One-time settings: brain folder, calendar, currency, time zone, weekend days, capture mode, the session brief and the two confidence thresholds. Skills read them directly.
+**Settings and automatic checks**
+- One-time settings: brain folder, calendar, currency, time zone, weekend days, whether to remember things automatically, the session brief, and the two confidence levels.
+- In Claude Code and Cowork, a short brief at the start of each session (what's waiting, deadlines, health score), and a quick check every time an entry changes.
 
-**Automatic checks (Claude Code and Cowork)**
-- Session brief at the start of each session: decisions waiting, contract deadlines, health score.
-- Quick check after any brain entry is written: index rebuilt, conflicts and suspicious text raised.
+**Privacy and security**
+- Every entry is public, internal or confidential. People, contracts and finance are confidential unless marked otherwise.
+- Anything going outside the business is checked so confidential facts stay in.
+- Documents are information, never instructions. Text that tries to instruct an AI is set aside, flagged and shown to you.
 
-**Security and privacy**
-- Sensitivity labels on every entry: public, internal, confidential (people, contracts and finance default to confidential).
-- `--audience external` in search and the citation check keeps confidential facts out of material leaving the business.
-- Prompt-injection defence: documents are data, never instructions. Instruction-like text is quarantined by the bulk-load planner, flagged by the health check and search, and reported to the user.
-- New reference: `security-and-privacy.md`.
-
-**Release discipline**
-- GitHub Actions: plugin validation and unit tests on every push (Linux, macOS, Windows); evals on demand and on release tags.
-- Releases are tagged `my-business-brain--v<version>`, the format plugin dependencies resolve against.
+**Testing and releases**
+- 35 unit tests and 14 behaviour tests, each behaviour test run with and without the plugin. The five that measure what the plugin adds all scored 1.0 with it, against an average of 0.35 without.
+- Automatic checks on GitHub for every change on Linux, macOS and Windows, with the behaviour tests run for each release.
+- Releases are tagged `my-business-brain--v<version>`.
 
 ## 1.1.0 (2026-09-26)
 

@@ -29,7 +29,8 @@ import sys
 from collections import Counter
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brainlib import load_brain, parse_date, as_list, today, sensitivity_of, injection_hits
+from brainlib import (load_brain, parse_date, as_list, today, sensitivity_of, injection_hits, fold, ar_stem,
+                      AR_LETTERS, AR_STOP)
 
 STOP = {"the", "a", "an", "and", "or", "of", "to", "in", "for", "on", "is", "are", "be", "with", "by",
         "at", "as", "it", "this", "that", "we", "our", "from", "what", "which", "who", "how", "do",
@@ -50,12 +51,13 @@ def stem(w):
 
 
 def tokens(text):
-    text = str(text).lower().replace(",", "")
+    """English and Arabic words (Arabic folded and lightly stemmed), and numbers without separators."""
+    text = fold(text).lower().replace(",", "")
     out = []
-    for w in re.findall(r"[a-z0-9]+(?:\.[0-9]+)?", text):
-        if w in STOP or (len(w) < 2 and not w.isdigit()):
+    for w in re.findall(r"[a-z0-9]+(?:\.[0-9]+)?|[" + AR_LETTERS + r"]+", text):
+        if w in STOP or w in AR_STOP or (len(w) < 2 and not w.isdigit()):
             continue
-        out.append(stem(w))
+        out.append(ar_stem(w) if "\u0621" <= w[0] <= "\u064A" else stem(w))
     return out
 
 

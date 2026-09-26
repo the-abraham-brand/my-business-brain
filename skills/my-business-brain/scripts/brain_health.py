@@ -302,11 +302,24 @@ def regression_issues(root, now):
         with open(os.path.join(root, "_system", "calibration.json"), encoding="utf-8") as fh:
             cal = json.load(fh)
         for typ, c in cal.items():
+            if typ.startswith("_") or not isinstance(c, dict) or not c.get("auto"):
+                continue
+            stopped = float(c["auto"]) > 1
             out.append(issue("Decision accuracy", "Low", [typ],
                              f"'{typ}' decisions were corrected too often (accuracy {c.get('accuracy')}); "
-                             f"auto-apply threshold raised to {c.get('auto')}",
+                             + ("auto-apply is paused for this type" if stopped
+                                else f"auto-apply threshold raised to {c.get('auto')}"),
                              "Review recent corrections and approve a rule if a pattern is clear"))
-    except (OSError, ValueError):
+    except (OSError, ValueError, AttributeError):
+        pass
+    try:
+        from decide import lint
+        for i in lint(root):
+            if i["severity"] in ("error", "warning"):
+                out.append(issue("Decision type", "Medium" if i["severity"] == "error" else "Low", [i["type"]],
+                                 f"_system/decision-types.json, '{i['type']}': {i['message']}",
+                                 "Fix the type definition (see decision-gates.md)"))
+    except Exception:
         pass
     return out
 

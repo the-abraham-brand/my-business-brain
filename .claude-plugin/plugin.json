@@ -1,7 +1,7 @@
 {
   "name": "my-business-brain",
-  "version": "1.2.0",
-  "description": "My Business Brain by Abraham: a self-healing second brain for your business inside Claude. Remembers your products, prices, customers, policies and decisions with sources and sensitivity labels, answers with hybrid search and verified citations, makes small decisions with confidence scores and thresholds you set, warns when an answer the business relies on changes and which past emails and proposals used a changed fact, flags conflicts and overlaps, bulk-loads documents with read-only reader agents and screens them for prompt injection, vets official information with an independent checker agent, briefs you at the start of each session, analyses the business to consulting standard, and puts contract deadlines on your calendar (Contract Clocks).",
+  "version": "1.3.0",
+  "description": "A trusted memory for your business, inside Claude, in English and Arabic. My Business Brain keeps what your company knows in one place, each fact with its source. It keeps that knowledge right as things change: it catches clashing facts, re-checks the answers you rely on, and tells you which customers were sent a price that has since changed. It answers questions with checked sources, analyses like a good consultant, and puts contract deadlines on your calendar. Confidential details stay inside the business, documents can't give it orders, and it asks you whenever it isn't sure. By Abraham.",
   "author": {
     "name": "Abraham",
     "url": "https://theabrahambrand.com"
@@ -82,7 +82,7 @@
     "auto_threshold": {
       "type": "number",
       "title": "Auto-apply confidence",
-      "description": "Small decisions (what to remember, which domain, how sensitive) at or above this confidence are applied automatically and logged. Types that keep being corrected get a stricter bar automatically.",
+      "description": "Small decisions (what to remember, which domain, how sensitive) at or above this confidence are applied automatically and logged. Confidence is corrected by each type's track record, and types that keep being corrected get a stricter bar automatically.",
       "default": 0.9,
       "min": 0.5,
       "max": 1

@@ -5,14 +5,14 @@
     "url": "https://theabrahambrand.com"
   },
   "metadata": {
-    "description": "My Business Brain by Abraham: a self-healing second brain for your business inside Claude."
+    "description": "My Business Brain by Abraham: a trusted memory for your business, inside Claude."
   },
   "plugins": [
     {
       "name": "my-business-brain",
       "source": "./",
-      "description": "Business knowledge bank that heals itself, flags conflicts, keeps confidential facts out of outgoing material, vets official information, analyses like a consultant, and tracks contract deadlines on your calendar.",
-      "version": "1.2.0",
+      "description": "A trusted memory for your business in English and Arabic: facts with sources, self-healing checks, alerts when a quoted price changes, checked answers, confidential details kept in, and contract deadlines on your calendar.",
+      "version": "1.3.0",
       "category": "productivity",
       "tags": [
         "business",
