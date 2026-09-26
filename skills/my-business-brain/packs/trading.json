@@ -1,0 +1,93 @@
+{
+ "id": "trading",
+ "version": "1.0.0",
+ "name": "Trading, import-export or distribution",
+ "description": "Products and price lists, suppliers and their terms, landed costs and margins, stock and lead times, customer credit.",
+ "key_prefixes": {
+  "product.": "products",
+  "price.": "pricing",
+  "supplier.": "suppliers",
+  "customer.": "customers",
+  "stock.": "operations",
+  "shipping.": "operations",
+  "credit.": "finance"
+ },
+ "confidential_terms": [
+  "landed cost",
+  "margin",
+  "supplier price",
+  "cost price",
+  "credit limit"
+ ],
+ "decision_types": {
+  "order_priority": {
+   "kind": "score",
+   "question": "How urgent is this order?",
+   "levels": [
+    "routine",
+    "soon",
+    "urgent",
+    "critical: customer will be let down"
+   ]
+  },
+  "credit_ok": {
+   "kind": "noul",
+   "question": "Is this customer within their credit limit and terms?"
+  }
+ },
+ "fact_templates": [
+  {
+   "key": "price.list.current",
+   "title": "Current price list",
+   "domain": "pricing",
+   "sensitivity": "public",
+   "ask": "Which price list is current, and from what date?"
+  },
+  {
+   "key": "supplier.main.terms",
+   "title": "Main supplier payment terms",
+   "domain": "suppliers",
+   "sensitivity": "internal",
+   "ask": "What are your main suppliers' payment terms and minimum order quantities?"
+  },
+  {
+   "key": "shipping.lead-time",
+   "title": "Typical lead time",
+   "domain": "operations",
+   "sensitivity": "public",
+   "ask": "How long from order to delivery, for stock and for special orders?"
+  },
+  {
+   "key": "credit.customer.terms",
+   "title": "Customer credit terms",
+   "domain": "finance",
+   "sensitivity": "internal",
+   "ask": "What credit terms do you give customers, and what are the limits?"
+  },
+  {
+   "key": "policy.returns",
+   "title": "Returns and damaged goods policy",
+   "domain": "policies",
+   "sensitivity": "public",
+   "ask": "How do you handle returns and goods damaged in transit?"
+  },
+  {
+   "key": "product.margin.target",
+   "title": "Target margin",
+   "domain": "finance",
+   "sensitivity": "confidential",
+   "ask": "What margin do you aim for on each product line?"
+  }
+ ],
+ "watch": [
+  "supplier contract renewals and price changes",
+  "shipments and customs deadlines",
+  "customer credit reviews"
+ ],
+ "glossary": [
+  "landed cost",
+  "MOQ",
+  "lead time",
+  "Incoterms"
+ ]
+}

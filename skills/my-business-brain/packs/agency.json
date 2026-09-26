@@ -1,0 +1,85 @@
+{
+ "id": "agency",
+ "version": "1.0.0",
+ "name": "Agency, consultancy or professional services",
+ "description": "Services and rate cards, retainers and scopes, clients and their contracts, team capacity and utilisation.",
+ "key_prefixes": {
+  "service.": "products",
+  "rate.": "pricing",
+  "retainer.": "contracts",
+  "client.": "customers",
+  "team.": "people",
+  "project.": "operations"
+ },
+ "confidential_terms": [
+  "day rate floor",
+  "margin",
+  "salary",
+  "utilisation",
+  "client budget"
+ ],
+ "decision_types": {
+  "scope_change": {
+   "kind": "noul",
+   "question": "Is this request outside the agreed scope?"
+  },
+  "project_health": {
+   "kind": "score",
+   "question": "How is this project going?",
+   "levels": [
+    "on track",
+    "watch",
+    "at risk",
+    "off track"
+   ]
+  }
+ },
+ "fact_templates": [
+  {
+   "key": "rate.card",
+   "title": "Rate card",
+   "domain": "pricing",
+   "sensitivity": "internal",
+   "ask": "What are your day or hourly rates by role?"
+  },
+  {
+   "key": "service.packages",
+   "title": "Service packages",
+   "domain": "products",
+   "sensitivity": "public",
+   "ask": "Which packages do you sell, and what does each include?"
+  },
+  {
+   "key": "retainer.terms",
+   "title": "Standard retainer terms",
+   "domain": "contracts",
+   "sensitivity": "internal",
+   "ask": "What are your standard retainer terms (minimum period, notice, rollover of hours)?"
+  },
+  {
+   "key": "policy.change-requests",
+   "title": "Change request policy",
+   "domain": "policies",
+   "sensitivity": "public",
+   "ask": "How do you handle work outside the agreed scope?"
+  },
+  {
+   "key": "policy.payment-terms",
+   "title": "Client payment terms",
+   "domain": "finance",
+   "sensitivity": "public",
+   "ask": "What payment terms do you give clients, and when do you invoice?"
+  }
+ ],
+ "watch": [
+  "retainer renewals and notice dates",
+  "project milestones",
+  "tool and software subscriptions"
+ ],
+ "glossary": [
+  "retainer",
+  "scope creep",
+  "utilisation",
+  "SOW"
+ ]
+}

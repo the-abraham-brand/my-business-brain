@@ -15,6 +15,8 @@ Useful options: `--audience external` when drafting anything that leaves the bus
 
 **If the search finds nothing,** try the business's own terms and broader phrasings before concluding the brain does not know. Log the miss in `_system/questions.md`.
 
+**Layered reading on large brains.** `brain_search.py ... --brief` prints a one-line index per result (id, title, value, status, sensitivity) and the rough cost of reading them all in full. Read the index, pick what matters, then fetch those entries whole with `scripts/brain_get.py <brain> ID [ID ...]` (source sections by their `sources/file.md#Lx-Ly` reference). On a brain of thousands of entries this reads a fraction of the text. `brain_get.py --audience external` withholds confidential entries.
+
 ## 2. Source documents: chunking
 
 - Entries are already the ideal retrieval unit: one fact per entry, with a key. Keep it that way.

@@ -16,13 +16,20 @@ business-brain/
   sources/                 source documents the user wants kept, with a .md or .txt copy
                            of each so they can be searched and cited to the line
   _system/
-    changelog.md           every add, update, supersede, archive, with date and reason
+    changelog.md           every add, update, supersede, archive: `- YYYY-MM-DD what and why [[id]]`
     health-report.md       latest health check
     decisions-needed.md    conflicts and questions waiting for the user
     lessons.md             adaptive learning: corrections and how to apply them
     preferences.md         how the user likes answers, terms, formats
     questions.md           questions asked, answered or not (for gap analysis)
     archive/               superseded or retired entries, never deleted
+    integrity.json         fingerprints of every entry and source, to catch edits outside the brain
+    unsaved-facts.md       facts mentioned in conversation but never saved (end-of-session sweep)
+    resume.json            the resume card of an unfinished long job
+    pack.json, pack-questions.md   the industry pack applied and its starting questions
+    briefings/  journal/   topic briefings, onboarding packs and monthly journals
+    dashboard.html         the one-page dashboard
+    snapshots/  digests/   daily snapshots and weekly change digests
 ```
 
 Domains (folders under `entries/`) start with: `company`, `products`, `pricing`, `customers`, `suppliers`, `people`, `policies`, `procedures`, `contracts`, `finance`, `metrics`, `marketing`, `sales`, `operations`, `legal-regulatory`, `decisions`, `glossary`. Add a domain only when an entry does not fit any existing one, and record it in `BRAIN.md`.
@@ -89,6 +96,7 @@ Overage beyond the included minutes is billed per [[pricing-overage-rates]].
 3. **Check the brain before writing**, for each item:
    - Same `key` exists, same value → no new entry; refresh `verified_on` or `source` if the new material is newer.
    - Same `key`, different value → **conflict**: do not overwrite. Add to `_system/decisions-needed.md` and ask the user (see `self-healing.md`).
+   - **Exception: the owner confirms a change.** When the owner (not a document) states a new value and confirms it ("price list v4 is confirmed"), it is an **update**, not a conflict: supersede the old entry straight away and log it. An older document saying otherwise doesn't reopen the question; mention it, and flag it if it's suspicious.
    - No `key` match, but a similar title or overlapping content → **possible overlap**: propose merging or linking.
    - Nothing similar → new entry.
 4. **Vet** any official information before storing it (see `trusted-sources.md`).

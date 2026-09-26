@@ -1,5 +1,5 @@
 {
-  "description": "My Business Brain: a short brief at session start (decisions waiting, contract deadlines, health) and a quick health check after a brain entry is written. Claude Code and Cowork only; on claude.ai the skills do the same by instruction.",
+  "description": "My Business Brain: a short brief at session start (decisions waiting, deadlines, unfinished jobs, facts mentioned but not saved), a nudge when a message states a business fact or asks to keep something off the record, a quick check after a brain entry is written, and an end-of-session sweep for unsaved facts. Claude Code and Cowork only; on claude.ai the skills do the same by instruction.",
   "hooks": {
     "SessionStart": [
       {
@@ -20,6 +20,28 @@
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/after_write.py\" 2>/dev/null || python \"${CLAUDE_PLUGIN_ROOT}/hooks/after_write.py\" 2>/dev/null || true",
             "timeout": 15
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/capture_nudge.py\" 2>/dev/null || python \"${CLAUDE_PLUGIN_ROOT}/hooks/capture_nudge.py\" 2>/dev/null || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session_end.py\" 2>/dev/null || python \"${CLAUDE_PLUGIN_ROOT}/hooks/session_end.py\" 2>/dev/null || true",
+            "timeout": 30
           }
         ]
       }

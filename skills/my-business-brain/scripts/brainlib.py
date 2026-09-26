@@ -198,6 +198,40 @@ INJECTION_PATTERNS = [
 _INJ = [re.compile(p, re.I) for p in INJECTION_PATTERNS]
 
 
+# ---- Private (off the record) ----
+# Anything the user wraps in <private>...</private> (or <خاص>...</خاص>) is never stored: not in an
+# entry, not in a log, not in a briefing. An unclosed tag hides everything after it.
+_PRIVATE_BLOCK = re.compile(r"<\s*(private|خاص)\s*>.*?<\s*/\s*\1\s*>", re.S | re.I)
+_PRIVATE_OPEN = re.compile(r"<\s*(private|خاص)\s*>.*", re.S | re.I)
+
+
+def strip_private(text):
+    """Remove private passages. Returns the text with each one replaced by nothing."""
+    if not text:
+        return text
+    out = _PRIVATE_BLOCK.sub("", str(text))
+    return _PRIVATE_OPEN.sub("", out)
+
+
+def read_text(path, default=""):
+    """The whole file as text, or `default` if it doesn't exist (closes the file)."""
+    if not os.path.exists(path):
+        return default
+    with open(path, encoding="utf-8") as f:
+        return f.read()
+
+
+def has_private(text):
+    return bool(text) and bool(_PRIVATE_OPEN.search(str(text)))
+
+
+def approx_tokens(text):
+    """Rough reading cost of a text in tokens (about 4 characters each; Arabic about 2.5)."""
+    t = str(text or "")
+    ar = sum(1 for ch in t if "\u0600" <= ch <= "\u06FF")
+    return int(round((len(t) - ar) / 4 + ar / 2.5))
+
+
 _SCRIPTS = (("arabic", ((0x0600, 0x06FF), (0x0750, 0x077F), (0x08A0, 0x08FF), (0xFB50, 0xFDFF), (0xFE70, 0xFEFF))),
             ("latin", ((0x0041, 0x005A), (0x0061, 0x007A), (0x00C0, 0x024F))),
             ("cyrillic", ((0x0400, 0x04FF),)),

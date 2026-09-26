@@ -30,6 +30,12 @@ Use when the user adds more than about five documents, or one very long one (a p
 6. **Contracts** found in the load go through Contract Clocks (confirm dates with the user before any calendar event).
 7. **Heal and report.** Rebuild the index, run the health check, and report: added, refreshed, conflicts needing a decision (with a recommendation each), overlaps proposed, items returned.
 
+**Keep a resume card** for any load of more than about ten documents: `scripts/resume.py <brain> start --task "..." --items <file list>`, `done <file>` as each batch is merged, `decision "..."` for questions waiting on the user. If the conversation is compacted or resumed later, continue from `resume.py show`, never from memory. `finish` when the load is done.
+
+## Topic expert
+
+For several follow-up questions on one topic, build a briefing (`briefings-and-journal.md`) and give its path to the read-only `topic-expert` agent. It answers from that file alone, cites every fact and says what's missing.
+
 ## Independent checker (maker-checker)
 
 Use a fresh `brain-checker` whenever a result could cost money, create legal exposure or drive a significant decision:

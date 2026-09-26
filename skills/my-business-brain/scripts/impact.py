@@ -23,7 +23,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brainlib import load_brain, norm  # noqa: E402
+from brainlib import load_brain, norm, strip_private  # noqa: E402
 
 KINDS = ("answer", "email", "proposal", "quote", "report", "post", "document", "other")
 
@@ -54,6 +54,7 @@ def log_output(root, citations, kind="answer", purpose="", recipient="", audienc
         m = e["meta"]
         cites.append({"id": c, "key": m.get("key", ""), "value": m.get("value", ""),
                       "status": m.get("status", "active"), "hash": entry_hash(m, e["body"])})
+    purpose, recipient = strip_private(purpose or ""), strip_private(recipient or "")
     rec = {"id": "a-" + uuid.uuid4().hex[:10],
            "at": when or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
            "kind": kind if kind in KINDS else "other", "purpose": purpose[:200], "recipient": recipient[:120],

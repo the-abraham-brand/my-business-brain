@@ -53,7 +53,7 @@ from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brainlib import SENSITIVITY, CONFIDENTIAL_DOMAINS, injection_hits, script_of  # noqa: E402
+from brainlib import read_text, SENSITIVITY, CONFIDENTIAL_DOMAINS, injection_hits, script_of, strip_private  # noqa: E402
 
 DOMAINS = ["company", "products", "pricing", "customers", "suppliers", "people", "policies", "procedures",
            "contracts", "finance", "metrics", "marketing", "sales", "operations", "legal-regulatory",
@@ -210,6 +210,16 @@ def apply_rules(root, dtype, text="", domain="", key="", start="", end="", due="
             return "confidential", f"mentions '{m.group(0)}'"
         if domain in CONFIDENTIAL_DOMAINS:
             return "confidential", f"{domain} entries are confidential by default"
+    pack = load_json(os.path.join(root, "_system", "pack.json"), {})
+    if dtype == "domain" and key:
+        for prefix, dom in sorted((pack.get("key_prefixes") or {}).items(), key=lambda kv: -len(kv[0])):
+            if key.startswith(str(prefix).lower()):
+                return dom, f"key starts with '{prefix}' ({pack.get('name', 'industry pack')})"
+    if dtype == "sensitivity" and pack.get("confidential_terms"):
+        low = text.lower()
+        for term in pack["confidential_terms"]:
+            if str(term).lower() in low:
+                return "confidential", f"mentions '{term}' ({pack.get('name', 'industry pack')})"
     if dtype == "domain" and key:
         for prefix, dom in KEY_PREFIX_DOMAIN.items():
             if key.startswith(prefix):
@@ -383,6 +393,7 @@ def record(root, dtype, choice=None, confidence=None, scores=None, subject="", e
     spec = specs.get(dtype)
     if not spec:
         return {"error": f"unknown decision type '{dtype}'", "types": sorted(specs)}
+    text, evidence, subject = strip_private(text), strip_private(evidence), strip_private(subject)
     try:
         choice, raw, extras = parse_answer(spec, choice, confidence, scores, dist, p)
     except ValueError as e:
@@ -559,7 +570,7 @@ def stats(root, write=False, today_=None):
             json.dump(cal, f, indent=2)
         if proposals:
             path = os.path.join(sysdir(root), "decisions-needed.md")
-            old = open(path, encoding="utf-8").read() if os.path.exists(path) else "# Decisions needed\n"
+            old = read_text(path, "# Decisions needed\n")
             head_, _, rest = old.partition("\n")
             lines = [f"- [ ] {(today_ or date.today()).isoformat()} **Proposed rule**: {p['type']} = "
                      f"'{p['choice']}' for {p['when']['domain']} ({p['evidence']}). Approve to apply it "
@@ -651,10 +662,14 @@ NEGATION = re.compile(r"\b(not|never|no|none|without)\b|n't\b", re.I)
 
 
 def lint(root):
-    issues = []
     custom = load_json(os.path.join(root, "_system", "decision-types.json"), {})
     if not isinstance(custom, dict):
         return [{"severity": "error", "type": "*", "message": "decision-types.json must be an object"}]
+    return lint_types(custom)
+
+
+def lint_types(custom):
+    issues = []
     for name, v in custom.items():
         spec = normalise_spec(name, v)
         if not spec:

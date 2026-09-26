@@ -10,9 +10,18 @@ sys.path.insert(0, SCRIPTS)
 SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "__pycache__", ".claude", "Library", "AppData"}
 
 
-def read_event():
+for _stream in (sys.stdout, sys.stderr):  # Windows consoles default to a legacy code page
     try:
-        data = sys.stdin.read()
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
+
+def read_event():
+    """The hook's JSON input. Claude Code sends UTF-8; read bytes so Windows code pages can't garble it."""
+    try:
+        raw = sys.stdin.buffer.read() if hasattr(sys.stdin, "buffer") else sys.stdin.read().encode("utf-8")
+        data = raw.decode("utf-8-sig", errors="replace")
         return json.loads(data) if data.strip() else {}
     except Exception:
         return {}

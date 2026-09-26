@@ -5,7 +5,8 @@
 #   Free: no model calls.
 # - evals: the behaviour tests in evals/ (claude plugin eval), with and without the plugin.
 #   They call the model and are billed to the ANTHROPIC_API_KEY repository secret, so they
-#   run only when started by hand (Actions > CI > Run workflow) or when a release tag is pushed.
+#   run only when started by hand (Actions > CI > Run workflow) or when a release tag is pushed,
+#   and are skipped with a notice (not failed) when the secret is not set.
 name: CI
 
 on:
@@ -21,10 +22,10 @@ on:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: "22"
       - run: npm install -g @anthropic-ai/claude-code
@@ -35,12 +36,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-24.04, macos-latest, windows-latest]
         python: ["3.9", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
       - run: python -m unittest discover -s tests -v
@@ -48,19 +49,33 @@ jobs:
   evals:
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
     needs: [validate, unit-tests]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     env:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check for the API key
+        id: key
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::notice::Evals skipped: add the ANTHROPIC_API_KEY repository secret to run them."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.key.outputs.present == 'true'
+        uses: actions/checkout@v5
+      - if: steps.key.outputs.present == 'true'
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
-      - run: npm install -g @anthropic-ai/claude-code
+      - if: steps.key.outputs.present == 'true'
+        run: npm install -g @anthropic-ai/claude-code
       # The eval sandbox needs bubblewrap and socat on Linux to let cases run Bash.
-      - run: sudo apt-get update && sudo apt-get install -y bubblewrap socat
+      - if: steps.key.outputs.present == 'true'
+        run: sudo apt-get update && sudo apt-get install -y bubblewrap socat
       - name: Run evals
+        if: steps.key.outputs.present == 'true'
         run: >
           claude plugin eval .
           --trust-plugin --scaffold
@@ -69,8 +84,8 @@ jobs:
           --model claude-sonnet-5 --judge-model claude-sonnet-5
           --threshold 0.8 --max-cost-usd 25 --no-publish
           --json eval-results.json
-      - uses: actions/upload-artifact@v4
-        if: always()
+      - uses: actions/upload-artifact@v6
+        if: always() && steps.key.outputs.present == 'true'
         with:
           name: eval-results
           path: |

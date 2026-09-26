@@ -106,9 +106,14 @@ def unstable(root, now):
     series = {}
     snaps = [load_snapshot(root, d) for d in days] + [capture(root, now)]
     for s in snaps:
+        per_key = {}
         for eid, e in s["entries"].items():
             if e["key"] and e["status"] in ("active", "disputed"):
-                series.setdefault(e["key"].lower(), []).append((s["date"], e["value"], e["title"]))
+                per_key.setdefault(e["key"].lower(), []).append(e)
+        for k, es in per_key.items():
+            if len({norm(e["value"]) for e in es}) > 1:
+                continue  # two entries disagree on the same day: a conflict (reported as such), not a change
+            series.setdefault(k, []).append((s["date"], es[0]["value"], es[0]["title"]))
     out = []
     for k, seq in series.items():
         vals = []

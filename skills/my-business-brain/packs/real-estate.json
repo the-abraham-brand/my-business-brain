@@ -1,0 +1,100 @@
+{
+ "id": "real-estate",
+ "version": "1.0.0",
+ "name": "Real-estate agency or property management",
+ "description": "Listings, commission structures, landlords and tenants, agent licences, and the lease dates that drive most of the work.",
+ "key_prefixes": {
+  "commission.": "pricing",
+  "listing.": "products",
+  "landlord.": "customers",
+  "tenant.": "customers",
+  "agent.": "people",
+  "lease.": "contracts",
+  "licence.": "legal-regulatory"
+ },
+ "confidential_terms": [
+  "passport",
+  "tenant id",
+  "rent arrears",
+  "owner's price floor",
+  "lowest price"
+ ],
+ "decision_types": {
+  "lead_stage": {
+   "kind": "choice",
+   "question": "Where is this lead?",
+   "criteria": {
+    "enquiry": "first contact",
+    "viewing": "viewing booked or done",
+    "offer": "offer made",
+    "closed": "deal signed",
+    "lost": "no longer interested"
+   }
+  },
+  "renewal_risk": {
+   "kind": "score",
+   "question": "How likely is this tenant not to renew?",
+   "levels": [
+    "renewing",
+    "unsure",
+    "likely to leave",
+    "has given notice"
+   ]
+  }
+ },
+ "fact_templates": [
+  {
+   "key": "commission.sales",
+   "title": "Sales commission",
+   "domain": "pricing",
+   "sensitivity": "public",
+   "ask": "What commission do you charge on a sale, and who pays it?"
+  },
+  {
+   "key": "commission.leasing",
+   "title": "Leasing commission",
+   "domain": "pricing",
+   "sensitivity": "public",
+   "ask": "What do you charge for arranging a lease?"
+  },
+  {
+   "key": "fee.management",
+   "title": "Property management fee",
+   "domain": "pricing",
+   "sensitivity": "public",
+   "ask": "What is your property management fee?"
+  },
+  {
+   "key": "policy.deposit",
+   "title": "Security deposit policy",
+   "domain": "policies",
+   "sensitivity": "public",
+   "ask": "How much deposit do you take and when is it returned?"
+  },
+  {
+   "key": "agent.licences",
+   "title": "Agent licence renewal dates",
+   "domain": "people",
+   "sensitivity": "confidential",
+   "ask": "When does each agent's licence or registration expire?"
+  },
+  {
+   "key": "licence.agency.renewal",
+   "title": "Agency licence renewal date",
+   "domain": "legal-regulatory",
+   "sensitivity": "internal",
+   "ask": "When does the agency's trade or brokerage licence need renewing?"
+  }
+ ],
+ "watch": [
+  "lease end and notice dates",
+  "agent licence renewals",
+  "listing agreement expiries"
+ ],
+ "glossary": [
+  "exclusive listing",
+  "viewing",
+  "offer",
+  "handover"
+ ]
+}

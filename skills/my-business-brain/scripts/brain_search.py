@@ -4,7 +4,11 @@
 Usage:
   python3 brain_search.py <brain-folder> --q "refund window" [--q "returns policy days"]
                           [--top 10] [--domain pricing] [--include-archive] [--no-sources]
-                          [--audience internal|external] [--today YYYY-MM-DD] [--json]
+                          [--audience internal|team|external] [--today YYYY-MM-DD] [--json] [--brief]
+
+--brief prints a compact index (one line per result, about 30 tokens each) and what the full
+entries would cost to read. Read the index first, then fetch only the entries that matter with
+`brain_get.py <brain> ID [ID ...]`: on a large brain this reads a fraction of the text.
 
 How it ranks (standard library only, no index to maintain):
   1. Lexical recall with BM25 over each entry, with field weights: title and key x3,
@@ -16,6 +20,7 @@ How it ranks (standard library only, no index to maintain):
   3. Trust re-ranking: active, high-confidence, in-date entries rank above drafts,
      disputed, low-confidence, overdue or archived ones; exact title/key phrase matches
      get a boost.
+With --audience team (material for staff), confidential entries are left out.
 With --audience external (drafting anything that leaves the business), confidential
 entries are left out and internal ones are flagged for confirmation.
 Claude then reads the top results and makes the final semantic judgement (the
@@ -29,7 +34,7 @@ import sys
 from collections import Counter
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brainlib import (load_brain, parse_date, as_list, today, sensitivity_of, injection_hits, fold, ar_stem,
+from brainlib import (load_brain, parse_date, as_list, today, sensitivity_of, injection_hits, fold, ar_stem, approx_tokens,
                       AR_LETTERS, AR_STOP)
 
 STOP = {"the", "a", "an", "and", "or", "of", "to", "in", "for", "on", "is", "are", "be", "with", "by",
@@ -44,9 +49,15 @@ SOURCE_EXT = (".md", ".txt")
 
 
 def stem(w):
-    for suf in ("ies", "es", "s"):
-        if len(w) > 4 and w.endswith(suf):
-            return w[: -len(suf)] + ("y" if suf == "ies" else "")
+    """Light English plural stemming: policies -> policy, taxes -> tax, prices -> price."""
+    if len(w) <= 3:
+        return w
+    if w.endswith("ies") and len(w) > 4:
+        return w[:-3] + "y"
+    if w.endswith(("sses", "xes", "zes", "ches", "shes")):
+        return w[:-2]
+    if w.endswith("s") and not w.endswith(("ss", "us", "is")):
+        return w[:-1]
     return w
 
 
@@ -187,7 +198,7 @@ def search(root, queries, top=10, domain=None, include_archive=False, use_source
             continue
         if domain and m.get("domain") != domain:
             continue
-        if audience == "external" and sensitivity_of(m) == "confidential":
+        if audience in ("team", "external") and sensitivity_of(m) == "confidential":
             continue
         items.append({"kind": "entry", "e": e, "doc": entry_doc(e)})
     if use_sources and not domain:
@@ -236,6 +247,7 @@ def search(root, queries, top=10, domain=None, include_archive=False, use_source
                     and sensitivity_of(m) == "internal" else []),
                 "sensitivity": sensitivity_of(m),
                 "snippet": snippet(e["body"] or m.get("value", ""), all_q),
+                "full_tokens": approx_tokens(e["body"]) + approx_tokens(" ".join(str(v) for v in m.values())),
                 "score": round(f * boost * 1000, 3), "bm25": round(raw_best[i], 3),
                 "cite_as": f"[[{m.get('id') or e['file_id']}]]",
             })
@@ -248,6 +260,7 @@ def search(root, queries, top=10, domain=None, include_archive=False, use_source
                    if injection_hits(c["text"]) else [])
                 + (["internal document: confirm it may be shared"] if audience == "external" else []),
                 "snippet": snippet(c["text"], all_q), "score": round(f * 0.9 * 1000, 3),
+                "full_tokens": approx_tokens(c["text"]),
                 "bm25": round(raw_best[i], 3), "cite_as": f"[[{c['ref']}]]",
             })
     results.sort(key=lambda r: -r["score"])
@@ -274,6 +287,21 @@ def main(argv):
         return 0
     if not res:
         print("No matches. Try other phrasings (--q ...), the business's own terms, or --include-archive.")
+        return 0
+    if "--brief" in args:
+        lines = []
+        for n, r in enumerate(res, 1):
+            line = f"{n}. {r['id']} | {r['title'][:60]}"
+            if r.get("value"):
+                line += f" = {str(r['value'])[:50]}"
+            tags = [r.get("status", ""), r.get("sensitivity", "")] + (["!"] if r["flags"] else [])
+            line += " | " + " ".join(t for t in tags if t)
+            lines.append(line)
+        print("\n".join(lines))
+        index_cost = sum(approx_tokens(l) for l in lines)
+        full_cost = sum(r.get("full_tokens", 0) for r in res)
+        print(f"\nIndex: about {index_cost} tokens. Reading all {len(res)} in full: about {full_cost}. "
+              f"Fetch only the ones you need: brain_get.py <brain> ID [ID ...] (! = has warnings)")
         return 0
     for n, r in enumerate(res, 1):
         head = f"{n}. {r['cite_as']} {r['title']}"

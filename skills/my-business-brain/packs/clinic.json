@@ -1,0 +1,108 @@
+{
+ "id": "clinic",
+ "version": "1.0.0",
+ "name": "Clinic or medical practice",
+ "description": "Services and fees, practitioners and their licences, insurers and payment terms, patient-facing policies. Patient information is always confidential.",
+ "key_prefixes": {
+  "service.": "products",
+  "fee.": "pricing",
+  "insurer.": "customers",
+  "practitioner.": "people",
+  "licence.": "legal-regulatory",
+  "equipment.": "operations"
+ },
+ "confidential_terms": [
+  "patient",
+  "diagnosis",
+  "medical record",
+  "prescription",
+  "treatment plan",
+  "lab result",
+  "مريض",
+  "تشخيص"
+ ],
+ "decision_types": {
+  "appointment_type": {
+   "kind": "choice",
+   "question": "What kind of visit is this?",
+   "criteria": {
+    "new-patient": "first visit",
+    "follow-up": "return visit about the same issue",
+    "procedure": "a booked procedure",
+    "emergency": "same-day urgent visit"
+   }
+  },
+  "claim_risk": {
+   "kind": "score",
+   "question": "How likely is this insurance claim to be rejected?",
+   "levels": [
+    "unlikely",
+    "possible",
+    "likely",
+    "almost certain"
+   ]
+  }
+ },
+ "fact_templates": [
+  {
+   "key": "fee.consultation.standard",
+   "title": "Standard consultation fee",
+   "domain": "pricing",
+   "sensitivity": "public",
+   "ask": "What do you charge for a standard consultation?"
+  },
+  {
+   "key": "fee.consultation.follow-up",
+   "title": "Follow-up consultation fee",
+   "domain": "pricing",
+   "sensitivity": "public",
+   "ask": "What do you charge for a follow-up visit, and within how many days does it count as a follow-up?"
+  },
+  {
+   "key": "insurer.accepted",
+   "title": "Insurance plans accepted",
+   "domain": "customers",
+   "sensitivity": "public",
+   "ask": "Which insurers and plans do you accept?"
+  },
+  {
+   "key": "policy.cancellation",
+   "title": "Appointment cancellation policy",
+   "domain": "policies",
+   "sensitivity": "public",
+   "ask": "What is your cancellation and no-show policy?"
+  },
+  {
+   "key": "licence.facility.renewal",
+   "title": "Facility licence renewal date",
+   "domain": "legal-regulatory",
+   "sensitivity": "internal",
+   "ask": "When does the clinic's operating licence need renewing?"
+  },
+  {
+   "key": "practitioner.licences",
+   "title": "Practitioner licence renewal dates",
+   "domain": "people",
+   "sensitivity": "confidential",
+   "ask": "When does each practitioner's licence expire?"
+  },
+  {
+   "key": "insurer.payment-terms",
+   "title": "Insurer payment terms",
+   "domain": "finance",
+   "sensitivity": "internal",
+   "ask": "How many days do insurers take to pay, and how are rejected claims handled?"
+  }
+ ],
+ "watch": [
+  "practitioner and facility licence renewals",
+  "insurer contract renewals and fee schedules",
+  "equipment maintenance and calibration dates"
+ ],
+ "glossary": [
+  "co-pay",
+  "pre-approval",
+  "claim rejection",
+  "follow-up window"
+ ]
+}

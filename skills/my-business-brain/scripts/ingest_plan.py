@@ -26,6 +26,7 @@ Each candidate gets one action:
   invalid   missing title, domain or source -> send back to the reader
   confirm   the reader's "certainty" (0-1) for this fact is below the auto-apply threshold
             (--auto, default 0.9) -> not written; shown to the user to confirm
+  private    the candidate was marked private (<private>...</private>): never stored
   quarantine the candidate contains text that tries to instruct an AI (possible prompt
             injection) -> never written; logged in decisions-needed for the user to see
 With --write, "new" entries are created with review dates by type, conflicts are appended
@@ -40,7 +41,7 @@ import sys
 from datetime import timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brainlib import load_brain, norm, words, jaccard, today, parse_date, SENSITIVITY, injection_hits, CONFIDENTIAL_DOMAINS
+from brainlib import read_text, load_brain, norm, words, jaccard, today, parse_date, SENSITIVITY, injection_hits, CONFIDENTIAL_DOMAINS, strip_private, has_private
 
 OVERLAP = 0.6
 SIX_MONTH = {"price"}
@@ -88,6 +89,15 @@ def plan(root, cands, now, auto=0.9):
     for n, c in enumerate(cands, 1):
         c = dict(c)
         c["_n"] = n
+        # Off the record: private passages never reach the brain.
+        private = [f for f in ("title", "value", "body", "quote", "location") if has_private(c.get(f))]
+        for f in private:
+            c[f] = strip_private(c[f]).strip()
+        if private and not (c.get("value") or c.get("body")):
+            out.append({"n": n, "title": "(private)", "key": "", "value": "", "domain": c.get("domain", ""),
+                        "source": c.get("source", ""), "location": "", "reader": c.get("_file", ""),
+                        "action": "private", "reason": "marked private: not stored"})
+            continue
         row = {"n": n, "title": c.get("title", ""), "key": c.get("key", ""), "value": c.get("value", ""),
                "domain": c.get("domain", ""), "source": c.get("source", ""), "location": c.get("location", ""),
                "reader": c.get("_file", "")}
@@ -209,7 +219,7 @@ def write(root, rows, now):
     quarantined = [r for r in rows if r["action"] == "quarantine"]
     if quarantined:
         path = os.path.join(sysdir, "decisions-needed.md")
-        old = open(path, encoding="utf-8").read() if os.path.exists(path) else "# Decisions needed\n"
+        old = read_text(path, "# Decisions needed\n")
         head, _, rest = old.partition("\n")
         lines = [f"- [ ] {now.isoformat()} **Suspicious instructions** in {r['source'] or r['reader']}"
                  f"{', ' + r['location'] if r['location'] else ''}: {r['reason']}. Not stored and not followed. "
@@ -228,7 +238,7 @@ def write(root, rows, now):
                          + ("; ".join([brain] if brain else []) + ("; " if brain else ""))
                          + "new documents say " + "; ".join(versions) + ". Which is current?")
         path = os.path.join(sysdir, "decisions-needed.md")
-        old = open(path, encoding="utf-8").read() if os.path.exists(path) else "# Decisions needed\n"
+        old = read_text(path, "# Decisions needed\n")
         head, _, rest = old.partition("\n")
         with open(path, "w", encoding="utf-8") as f:
             f.write(head + "\n\n" + "\n".join(lines) + "\n" + rest)

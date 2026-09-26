@@ -1,0 +1,89 @@
+{
+ "id": "restaurant",
+ "version": "1.0.0",
+ "name": "Restaurant, café or food business",
+ "description": "Menu and prices, suppliers and deliveries, food safety, licences and inspections, staff rotas and delivery platforms.",
+ "key_prefixes": {
+  "menu.": "products",
+  "price.": "pricing",
+  "supplier.": "suppliers",
+  "platform.": "sales",
+  "licence.": "legal-regulatory",
+  "safety.": "procedures",
+  "staff.": "people"
+ },
+ "confidential_terms": [
+  "food cost",
+  "margin",
+  "supplier price",
+  "salary",
+  "platform commission"
+ ],
+ "decision_types": {
+  "incident_severity": {
+   "kind": "score",
+   "question": "How serious is this food-safety or customer incident?",
+   "levels": [
+    "minor",
+    "needs follow-up",
+    "serious",
+    "report to the authority"
+   ]
+  }
+ },
+ "fact_templates": [
+  {
+   "key": "price.menu.current",
+   "title": "Current menu prices",
+   "domain": "pricing",
+   "sensitivity": "public",
+   "ask": "Which menu is current, and from what date?"
+  },
+  {
+   "key": "platform.commission",
+   "title": "Delivery platform commissions",
+   "domain": "sales",
+   "sensitivity": "confidential",
+   "ask": "What commission does each delivery platform take?"
+  },
+  {
+   "key": "supplier.produce.terms",
+   "title": "Produce supplier terms",
+   "domain": "suppliers",
+   "sensitivity": "internal",
+   "ask": "Who supplies fresh produce, how often, and on what terms?"
+  },
+  {
+   "key": "licence.food.renewal",
+   "title": "Food licence renewal date",
+   "domain": "legal-regulatory",
+   "sensitivity": "internal",
+   "ask": "When does your food or trade licence need renewing?"
+  },
+  {
+   "key": "safety.inspection.last",
+   "title": "Last food-safety inspection",
+   "domain": "procedures",
+   "sensitivity": "internal",
+   "ask": "When was your last inspection, and what was the result?"
+  },
+  {
+   "key": "policy.allergens",
+   "title": "Allergen policy",
+   "domain": "policies",
+   "sensitivity": "public",
+   "ask": "How do you handle allergen information and requests?"
+  }
+ ],
+ "watch": [
+  "licence and permit renewals",
+  "inspection dates",
+  "supplier contract renewals"
+ ],
+ "glossary": [
+  "food cost",
+  "covers",
+  "prep list",
+  "allergen matrix"
+ ]
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """My Business Brain citation check: verify a drafted answer against the entries it cites.
 
-Usage: python3 cite_check.py <brain-folder> <answer.md | -> [--audience internal|external]
+Usage: python3 cite_check.py <brain-folder> <answer.md | -> [--audience internal|team|external]
                              [--log "what this is for"] [--kind answer|email|proposal|quote|report|post|document]
                              [--recipient "who receives it"] [--today YYYY-MM-DD] [--json]
 
@@ -25,6 +25,8 @@ For every sentence the check confirms that:
 It also flags sentences that state figures without any citation.
 With --audience external (an email, proposal, post or anything leaving the business),
 citing a confidential entry is a failure and citing an internal one needs confirmation.
+With --audience team (a briefing, handover or message for staff), citing a confidential entry
+is a failure: confidential facts are for the owner only.
 Exit code 0 = all supported, 1 = something to fix. Standard library only.
 """
 import json
@@ -34,7 +36,7 @@ import sys
 from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brainlib import load_brain, parse_date, today, sensitivity_of, fold
+from brainlib import read_text, load_brain, parse_date, today, sensitivity_of, fold
 
 CITE_RE = re.compile(r"\[\[([^\]]+)\]\]")
 QUOTE_RE = re.compile(r"[\"“]([^\"”]{4,})[\"”]")
@@ -187,6 +189,8 @@ def check(root, text, now, audience="internal"):
             sens = sensitivity_of(m)
             if audience == "external" and sens == "confidential":
                 row["problems"].append(f"'{c}' is confidential: it must not be used in material leaving the business")
+            elif audience == "team" and sens == "confidential":
+                row["problems"].append(f"'{c}' is confidential: it is for the owner only, not for material shared with the team")
             elif audience == "external" and sens == "internal":
                 row["warnings"].append(f"'{c}' is internal: confirm it may be shared")
             if e["archived"] or m.get("status") in ("superseded", "archived"):
@@ -233,7 +237,7 @@ def main(argv):
     if not os.path.isdir(root):
         print(f"Brain folder not found: {root}")
         return 2
-    text = sys.stdin.read() if src == "-" else open(src, encoding="utf-8").read()
+    text = sys.stdin.read() if src == "-" else read_text(src)
     now = today(args[args.index("--today") + 1]) if "--today" in args else today()
     audience = args[args.index("--audience") + 1] if "--audience" in args else "internal"
     res = check(root, text, now, audience)

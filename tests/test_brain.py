@@ -118,6 +118,13 @@ class TestCitations(BrainTestCase):
                                   "The Growth plan is AED 4,999 per month [[pricing-growth-plan-monthly]].\n")
         self.assertEqual(code, 0, out)
 
+    def test_team_audience_blocks_confidential(self):
+        text = "Supplier X hosts our platform for AED 60,000 per year [[contracts-supplier-x-hosting]].\n"
+        code, out, _ = self.check(text, "--audience", "team")
+        self.assertEqual(code, 1)
+        self.assertIn("owner only", out)
+        self.assertEqual(self.check(text)[0], 0)
+
     def test_wrong_figure_fails(self):
         code, out, _ = self.check("Customers get a full refund within 30 days [[policies-refund-window]].\n")
         self.assertEqual(code, 1)
@@ -416,7 +423,7 @@ class TestHooks(BrainTestCase):
                   folder=HOOKS)[1]
         self.assertIn("Conflict", json.loads(out)["hookSpecificOutput"]["additionalContext"])
         note = os.path.join(self.tmp, "notes.md")
-        with open(note, "w") as f:
+        with open(note, "w", encoding="utf-8") as f:
             f.write("hello")
         out = run("after_write.py", stdin=json.dumps({"tool_name": "Write", "tool_input": {"file_path": note}}),
                   folder=HOOKS)[1]
@@ -531,6 +538,153 @@ class TestArabic(BrainTestCase):
     def test_same_value_in_arabic_digits_is_not_a_conflict(self):
         self.assertEqual(brainlib.norm("AED ١٤٬٩٩٩"), brainlib.norm("AED 14,999"))
         self.assertEqual(brainlib.norm("أسعار"), brainlib.norm("اسعار"))
+
+
+class TestV14(BrainTestCase):
+    """Private text, layered search, integrity, sweep, resume card, packs, briefings, timeline, journal, dashboard."""
+
+    def test_private_text_is_never_stored(self):
+        self.assertEqual(brainlib.strip_private("Rent AED 9,000. <private>My partner owns 30%.</private> Done."),
+                         "Rent AED 9,000.  Done.")
+        self.assertEqual(brainlib.strip_private("Keep <خاص>سر</خاص> this"), "Keep  this")
+        self.assertEqual(brainlib.strip_private("Keep <private> everything after"), "Keep ")
+        import ingest_plan, decide
+        rows = ingest_plan.plan(self.brain, [{"title": "Ownership", "domain": "company", "source": "chat",
+                                              "value": "<private>partner owns 30%</private>"}], date(2026, 9, 26))
+        self.assertEqual(rows[0]["action"], "private")
+        r = decide.record(self.brain, "capture", "remember", 0.95, evidence="price note <private>secret 42</private>")
+        self.assertNotIn("secret", json.dumps(r))
+        self.write_entry("company", "company-leak", {"sensitivity": "internal"}, "Fine <private>leaked</private>")
+        code, out, _ = run("brain_health.py", self.brain, "--no-write", "--today", TODAY)
+        self.assertIn("Private text stored", out)
+
+    def test_layered_search_and_fetch(self):
+        code, out, _ = run("brain_search.py", self.brain, "--q", "prices", "--brief", "--no-sources", "--today", TODAY)
+        self.assertIn("pricing-scale-plan-monthly", out)
+        self.assertIn("Index: about", out)
+        code, out, _ = run("brain_get.py", self.brain, "pricing-scale-plan-monthly", "contracts-supplier-x-hosting",
+                           "--audience", "external")
+        self.assertIn("AED 14,999", out)
+        self.assertIn("withheld", out)
+        self.assertNotIn("60,000", out)
+
+    def test_integrity_catches_edits_outside_the_brain(self):
+        import integrity
+        integrity.save_manifest(self.brain, date(2026, 9, 20))
+        p = os.path.join(self.brain, "entries", "policies", "policies-refund-window.md")
+        with open(p, encoding="utf-8") as f:
+            text = f.read()
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(text.replace("14 days", "21 days"))
+        os.remove(os.path.join(self.brain, "entries", "products", "products-starter-plan.md"))
+        q = os.path.join(self.brain, "entries", "policies", "policies-payment-terms.md")
+        with open(q, encoding="utf-8") as f:
+            text = f.read()
+        with open(q, "w", encoding="utf-8") as f:
+            f.write(text.replace("30 days", "45 days"))
+        with open(os.path.join(self.brain, "_system", "changelog.md"), "a", encoding="utf-8") as f:
+            f.write("- 2026-09-25 Payment terms changed to 45 days [[policies-payment-terms]]\n")
+        r = integrity.check(self.brain)
+        self.assertEqual(r["changed"], ["entries/policies/policies-refund-window.md"])
+        self.assertEqual(r["removed"], ["entries/products/products-starter-plan.md"])
+        types = {t for t, *_ in integrity.issues(self.brain)}
+        self.assertEqual(types, {"Edited outside the brain", "Removed from the brain"})
+
+    def test_sweep_finds_unsaved_facts_only(self):
+        import sweep
+        texts = ["Our Scale plan is now AED 15,999 per month from October.",
+                 "The Growth plan is AED 4,999 per month.",          # already in the brain
+                 "What is our refund window?",                       # a question, not a fact
+                 "<private>Rent is AED 20,000.</private>",           # private
+                 "Off the record: the landlord wants AED 25,000 rent.",
+                 "الإيجار الجديد للمكتب 18,000 درهم شهرياً اعتباراً من يناير."]
+        found = sweep.candidates(self.brain, texts)
+        self.assertEqual(len(found), 2)
+        self.assertIn("15,999", found[0])
+        self.assertIn("18,000", found[1])
+        transcript = os.path.join(self.tmp, "t.jsonl")
+        with open(transcript, "w", encoding="utf-8") as f:
+            for t in texts:
+                f.write(json.dumps({"type": "user", "message": {"role": "user", "content": t}}) + "\n")
+        run("session_end.py", stdin=json.dumps({"transcript_path": transcript, "cwd": self.tmp}), folder=HOOKS)
+        self.assertEqual(len(sweep.pending(self.brain)), 2)
+        code, out, _ = run("capture_nudge.py", stdin=json.dumps(
+            {"prompt": "We raised the Starter plan to AED 1,799 per month", "cwd": self.tmp}), folder=HOOKS)
+        self.assertIn("1,799", json.loads(out)["hookSpecificOutput"]["additionalContext"])
+
+    def test_conflict_is_not_reported_as_unstable(self):
+        import brain_diff
+        self.write_entry("policies", "policies-refund-faq", {"key": "policy.refund.window-days", "value": "30 days",
+                                                              "sensitivity": "public"})
+        brain_diff.save_snapshot(self.brain, date(2026, 9, 20))
+        brain_diff.save_snapshot(self.brain, date(2026, 9, 25))
+        self.assertEqual(brain_diff.unstable(self.brain, date(2026, 9, 27)), [])
+
+    def test_hooks_read_arabic_on_a_windows_console(self):
+        # Windows pipes default to a legacy code page; hooks must still read UTF-8 input.
+        prompt = "الإيجار الجديد للمكتب 18,000 درهم شهرياً اعتباراً من يناير"
+        code, out, _ = run("capture_nudge.py", stdin=json.dumps({"prompt": prompt, "cwd": self.tmp}, ensure_ascii=False),
+                           env={"PYTHONIOENCODING": "cp1252"}, folder=HOOKS)
+        self.assertIn("18,000", json.loads(out)["hookSpecificOutput"]["additionalContext"])
+
+    def test_resume_card_survives_compaction(self):
+        run("resume.py", self.brain, "start", "--task", "Load contracts", "--items", "a.pdf,b.pdf,c.pdf")
+        run("resume.py", self.brain, "done", "a.pdf")
+        run("resume.py", self.brain, "decision", "Is Supplier Y still active?")
+        code, out, _ = run("session_brief.py", stdin=json.dumps({"cwd": self.tmp, "source": "compact"}), folder=HOOKS)
+        ctx = json.loads(out)["hookSpecificOutput"]["additionalContext"]
+        self.assertIn("1 of 3 done; next: b.pdf, c.pdf", ctx)
+        self.assertIn("continue this job from the card", ctx)
+
+    def test_packs_are_valid_and_apply(self):
+        import pack
+        for pid, p in pack.available().items():
+            self.assertEqual(pack.validate(p), [], pid)
+        out = pack.apply(self.brain, pack.available()["clinic"], date(2026, 9, 26))
+        self.assertIn("appointment_type", out["decision_types_added"])
+        again = pack.apply(self.brain, pack.available()["clinic"], date(2026, 9, 26))
+        self.assertEqual((again["decision_types_added"], again["questions_added"]), ([], 0))
+        import decide
+        self.assertEqual(decide.apply_rules(self.brain, "sensitivity", "Patient follow-up for Mr A")[0], "confidential")
+        self.assertEqual(decide.apply_rules(self.brain, "domain", key="practitioner.dr-sara")[0], "people")
+        self.assertIn("error", pack.apply(self.brain, {"id": "x", "name": "X", "description": "d",
+                                                        "key_prefixes": {"foo.": "nowhere"}}))
+
+    def test_briefing_respects_audience(self):
+        import briefing
+        owner = briefing.render(briefing.gather(self.brain, "Supplier X", now=date(2026, 9, 26)))
+        team = briefing.render(briefing.gather(self.brain, "Supplier X", audience="team", now=date(2026, 9, 26)))
+        self.assertIn("60,000", owner)
+        self.assertNotIn("60,000", team)
+        self.assertIn("confidential fact(s) left out", team)
+        onboarding = briefing.render(briefing.gather(self.brain, onboarding=True, audience="team", now=date(2026, 9, 26)))
+        self.assertNotIn("28,000", onboarding)
+        self.assertIn("Refund window", onboarding)
+
+    def test_timeline_journal_dashboard(self):
+        import timeline, journal, dashboard
+        ev = timeline.select(timeline.collect(self.brain), self.brain, topic="Supplier X")
+        self.assertTrue(any(e["kind"] == "contract" and e["date"] == "2026-10-16" for e in ev))
+        md = journal.render(2026, 9, journal.build(self.brain, 2026, 9, date(2026, 9, 26)))
+        self.assertIn("## Week 39", md)
+        page = dashboard.build(self.brain, "both", date(2026, 9, 26))
+        self.assertIn("Supplier X cloud hosting agreement", page)
+        self.assertNotIn("60,000", page)
+        self.assertIn('dir="rtl"', page)
+
+
+class TestManifest(unittest.TestCase):
+    """Limits the Claude app enforces when a .plugin file is uploaded."""
+
+    def test_description_lengths(self):
+        import glob, re
+        with open(os.path.join(ROOT, ".claude-plugin", "plugin.json"), encoding="utf-8") as f:
+            self.assertLessEqual(len(json.load(f)["description"]), 500, "plugin description")
+        for path in glob.glob(os.path.join(ROOT, "skills", "*", "SKILL.md")) + glob.glob(os.path.join(ROOT, "agents", "*.md")):
+            with open(path, encoding="utf-8") as f:
+                m = re.search(r"^description: (.*)$", f.read(), re.M)
+            self.assertIsNotNone(m, path)
+            self.assertLessEqual(len(m.group(1)), 1024, path)
 
 
 if __name__ == "__main__":

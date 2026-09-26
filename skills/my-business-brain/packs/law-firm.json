@@ -1,0 +1,86 @@
+{
+ "id": "law-firm",
+ "version": "1.0.0",
+ "name": "Law firm or legal practice",
+ "description": "Practice areas, fee structures, engagement terms, matters and their deadlines. Client information is always confidential.",
+ "key_prefixes": {
+  "fee.": "pricing",
+  "practice.": "products",
+  "client.": "customers",
+  "matter.": "operations",
+  "lawyer.": "people",
+  "licence.": "legal-regulatory"
+ },
+ "confidential_terms": [
+  "client",
+  "matter",
+  "privileged",
+  "settlement",
+  "opposing party",
+  "case strategy"
+ ],
+ "decision_types": {
+  "conflict_check": {
+   "kind": "noul",
+   "question": "Could taking this matter conflict with an existing client?"
+  },
+  "matter_type": {
+   "kind": "choice",
+   "question": "What kind of matter is this?",
+   "criteria": {
+    "advisory": "advice without proceedings",
+    "transaction": "a deal or document",
+    "dispute": "litigation or arbitration",
+    "regulatory": "dealing with a regulator"
+   }
+  }
+ },
+ "fact_templates": [
+  {
+   "key": "fee.hourly",
+   "title": "Hourly rates by seniority",
+   "domain": "pricing",
+   "sensitivity": "internal",
+   "ask": "What are your hourly rates for partners, associates and paralegals?"
+  },
+  {
+   "key": "fee.fixed",
+   "title": "Fixed-fee services",
+   "domain": "pricing",
+   "sensitivity": "public",
+   "ask": "Which services do you offer at a fixed fee, and at what price?"
+  },
+  {
+   "key": "policy.engagement",
+   "title": "Standard engagement terms",
+   "domain": "policies",
+   "sensitivity": "internal",
+   "ask": "What are your standard engagement terms (retainer, billing cycle, payment terms)?"
+  },
+  {
+   "key": "lawyer.licences",
+   "title": "Lawyer licence renewal dates",
+   "domain": "people",
+   "sensitivity": "confidential",
+   "ask": "When does each lawyer's practising licence expire?"
+  },
+  {
+   "key": "policy.conflicts",
+   "title": "Conflict check procedure",
+   "domain": "procedures",
+   "sensitivity": "internal",
+   "ask": "How do you check for conflicts before taking a matter?"
+  }
+ ],
+ "watch": [
+  "court and filing deadlines",
+  "limitation periods",
+  "practising licence renewals"
+ ],
+ "glossary": [
+  "retainer",
+  "engagement letter",
+  "conflict check",
+  "limitation period"
+ ]
+}

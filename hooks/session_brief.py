@@ -64,12 +64,31 @@ def main():
     if outdated:
         lines.append(f"{len(outdated)} changed fact(s) were used in earlier emails, proposals or answers: "
                      + " | ".join(i["detail"][:160] for i in outdated[:2]) + ".")
+    try:
+        from sweep import pending
+        unsaved = pending(root)
+        if unsaved:
+            lines.append(f"{len(unsaved)} business fact(s) mentioned in earlier conversations were never saved "
+                         f"(_system/unsaved-facts.md), e.g. " + " | ".join(u[:120].rstrip(".") for u in unsaved[:2])
+                         + ". Ask the user whether to save, correct or dismiss them.")
+    except Exception:
+        pass
+    try:
+        from resume import load, summary
+        card = summary(load(root))
+        if card:
+            lines.append(card + (" The conversation was just compacted: continue this job from the card, "
+                                 "not from memory." if event.get("source") == "compact" else
+                                 " Offer to continue it."))
+    except Exception:
+        pass
     if stale:
         lines.append(f"{len(stale)} entr{'y is' if len(stale) == 1 else 'ies are'} past review date.")
     lines.append("If the user is working on the business, mention anything urgent briefly and offer to deal "
                  "with it; do not change the brain without asking. Settings: calendar="
                  f"{option('calendar', 'ask') or 'ask'}, currency={option('currency') or 'not set'}, "
-                 f"weekend={option('weekend', 'sat-sun') or 'sat-sun'}, capture={option('capture_mode', 'ask') or 'ask'}.")
+                 f"weekend={option('weekend', 'sat-sun') or 'sat-sun'}, capture={option('capture_mode', 'ask') or 'ask'}, "
+                 f"language={option('language', 'match') or 'match'}.")
     emit("SessionStart", " ".join(lines))
     return 0
 

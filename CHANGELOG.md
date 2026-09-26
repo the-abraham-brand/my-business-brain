@@ -1,5 +1,59 @@
 # Changelog
 
+## 1.4.0 (2026-09-26)
+
+This release is about trust and reach. Your knowledge stays in your folder with a record of every change, anything off the record stays off the record, and what the brain knows is easier to use: briefings, a timeline, a monthly journal and a dashboard. Several ideas were adapted from claude-mem (Apache 2.0); no code was copied.
+
+**Off the record**
+- Wrap anything in `<private>...</private>` (or `<خاص>...</خاص>`), or say it's off the record, and it is used in the moment but never stored: not in facts, logs, briefings or the resume card.
+- The scripts strip private passages before writing anything, and the health check flags any that reached a fact.
+
+**Local storage and integrity**
+- The brain keeps a fingerprint of every fact and source document. The health check reports anything edited, added or deleted outside the brain, so you can confirm or restore it.
+- Change log lines now name the facts they touched, so the brain can tell its own changes from anyone else's.
+- The README explains where your knowledge lives and how it is protected.
+
+**Nothing slips through**
+- When a message states a new business fact, the brain is reminded to offer to save it.
+- When a session ends, facts you mentioned but never saved are listed, and the next session brief asks you about them. Facts the brain already holds, questions and private text are skipped. Works in English and Arabic.
+- Long jobs keep a resume card with items done, items left and questions waiting. After a break, or when a long conversation is compacted, the brain continues from the card instead of from memory.
+
+**Industry packs**
+- Six ready-made packs: clinic, agency or consultancy, trading, law firm, real estate, restaurant.
+- Each brings:
+  - where facts belong;
+  - which words make a fact confidential in that trade;
+  - decision types for that trade;
+  - the first questions to ask the owner;
+  - what to watch.
+- A pack builder makes a custom one with the owner and checks it before applying.
+
+**Briefings and reports**
+- Topic briefings: everything about a supplier, customer or product on one page, with sources. Choose the audience (you, your team, or outside), and facts that audience shouldn't see are left out.
+- Onboarding packs for new team members.
+- A new `topic-expert` helper answers follow-up questions from a briefing alone.
+- Timeline: what was going on around a fact, a topic or a date, from changes, decisions, quotes and contract dates.
+- Monthly journal: the business's story week by week, each week carrying forward what is still open.
+- Dashboard: one page with the health score, deadlines, decisions, unsaved facts and recent changes. It works offline, handles Arabic right to left and follows light or dark mode. Values of confidential facts are masked.
+- New command: `/my-business-brain:brief`. New setting: language of record (match, English, Arabic or both).
+
+**Faster reading on big brains**
+- Search can return a short index first, with the rough cost of reading everything, and fetch full facts only for the ones that matter.
+- Fixed: plural searches such as "prices" now find "price".
+
+**Fixes and hardening**
+- Confidential now means "for the owner only". Briefings, handovers and staff messages use a new `team` audience in search and the citation check, so a contract fee can't slip into material for the team.
+- When the owner confirms a change ("price list v4 is confirmed"), the brain applies it instead of asking again because an older document disagrees. It always says which past proposals and quotes used the old value.
+- Two entries that disagree on the same fact are reported once, as a conflict, and no longer also as an "unstable fact".
+- Hooks read UTF-8 input on Windows, so Arabic typed in a Windows console arrives intact.
+- The Claude app upload limits (500-character plugin description, 1,024-character skill descriptions) are now checked by a test.
+- The automated checks on GitHub skip the behaviour tests with a notice, not a failure, when no API key is set. They run on current Node 24 actions and a pinned Ubuntu.
+
+**Tests**
+- 56 unit tests and 17 behaviour tests. Two behaviour tests are new:
+  - private text is never written into the brain (a guard);
+  - a team briefing keeps a confidential contract fee out. Without the plugin, Claude included the AED 60,000 fee.
+
 ## 1.3.0 (2026-09-26)
 
 This release is about judgement and language. The brain now makes its small everyday calls more carefully, keeps score of how often it gets them right, and handles Arabic properly throughout.
