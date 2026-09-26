@@ -27,6 +27,7 @@ Blogs, law-firm marketing posts, forums, AI summaries and undated pages are lead
 2. Match jurisdiction, effective date and scope exactly. Look for amendments, newer circulars or announcements that change it.
 3. For rules that determine money, legal exposure or deadlines, corroborate with a second authoritative source (for example the law and the regulator's guidance).
 4. Record: authority, document title and reference number, effective date, URL, date accessed, and the exact wording.
+5. When the rule affects money, legal exposure or deadlines, have an independent checker verify it without seeing your finding (`orchestration.md`). If the two disagree, show the user both.
 
 ## Report back
 
