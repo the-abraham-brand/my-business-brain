@@ -198,6 +198,99 @@ INJECTION_PATTERNS = [
 _INJ = [re.compile(p, re.I) for p in INJECTION_PATTERNS]
 
 
+# ---- Source trust tiers ----
+# Only official and reputable sources (and the business's own documents or the owner's word) can
+# back a stored fact. Social and community sources are kept as signals: sentiment or leads.
+TIERS = ("official", "reputable", "internal", "recording", "social", "other")
+FACT_TIERS = {"official", "reputable", "internal"}
+_OFFICIAL_SUFFIXES = (".gov", ".mil", ".int", ".europa.eu", ".un.org", ".who.int", ".worldbank.org", ".imf.org",
+                      ".oecd.org")
+_OFFICIAL_PARTS = ("gov", "gouv", "gob", "go", "govt", "admin", "mil")
+_REPUTABLE = ("reuters.com", "apnews.com", "bloomberg.com", "ft.com", "wsj.com", "economist.com", "bbc.com",
+              "bbc.co.uk", "statista.com", "nytimes.com", "theguardian.com", "cnbc.com", "forbes.com",
+              "mckinsey.com", "pwc.com", "deloitte.com", "ey.com", "kpmg.com", "gartner.com", "nature.com",
+              "sciencedirect.com", "ssrn.com", "arxiv.org")
+_SOCIAL = ("x.com", "twitter.com", "reddit.com", "facebook.com", "instagram.com", "tiktok.com", "linkedin.com",
+           "quora.com", "medium.com", "substack.com", "t.me", "telegram.org", "whatsapp.com", "discord.com",
+           "threads.net", "pinterest.com", "xiaohongshu.com", "bilibili.com", "v2ex.com", "weibo.com",
+           "trustpilot.com", "tripadvisor.com", "glassdoor.com", "yelp.com", "snapchat.com")
+_RECORDING = ("youtube.com", "youtu.be", "vimeo.com", "podcasts.apple.com", "open.spotify.com", "soundcloud.com")
+_URL_HOST = re.compile(r"https?://([^/\s:]+)", re.I)
+
+
+def _host(s):
+    s = str(s or "").strip()
+    m = _URL_HOST.search(s)
+    host = (m.group(1) if m else (s if re.fullmatch(r"[a-z0-9.-]+\.[a-z]{2,}", s.lower()) else "")).lower()
+    return host[4:] if host.startswith("www.") else host
+
+
+def _matches(host, domains):
+    return any(host == d or host.endswith("." + d) for d in domains)
+
+
+def source_tier(source, custom=None):
+    """Trust tier of a source (a URL, a domain or a source description).
+
+    custom: {"official": [...domains], "reputable": [...], "social": [...]} from the brain's
+    _system/trusted-sources.json, which wins over the built-in lists."""
+    host = _host(source)
+    custom = custom or {}
+    if host:
+        for tier in ("official", "reputable", "social", "recording"):
+            if _matches(host, [str(d).lower() for d in custom.get(tier, [])]):
+                return tier
+        if host.endswith(_OFFICIAL_SUFFIXES) or any(p in _OFFICIAL_PARTS for p in host.split(".")[1:-1]) \
+                or host.split(".")[-2:-1] in (["gov"], ["gouv"], ["gob"]):
+            return "official"
+        if _matches(host, _SOCIAL) or "forum" in host or host.startswith(("community.", "forums.")):
+            return "social"
+        if _matches(host, _RECORDING):
+            return "recording"
+        if _matches(host, _REPUTABLE):
+            return "reputable"
+        return "other"
+    low = str(source or "").lower()
+    if not low:
+        return "other"
+    if any(w in low for w in ("tweet", "reddit", "linkedin post", "facebook", "instagram", "whatsapp group",
+                              "forum", "tiktok", "social media", "online review", "review site")):
+        return "social"
+    if any(w in low for w in ("webinar", "podcast", "video", "recording", "youtube")):
+        return "recording"
+    return "internal"
+
+
+def load_trusted(root):
+    try:
+        import json as _json
+        with open(os.path.join(root, "_system", "trusted-sources.json"), encoding="utf-8") as f:
+            return _json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def source_meta(path, custom=None):
+    """Header of a source document (title, url, tier, ...) if it starts with a --- block."""
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            head = f.read(4000)
+    except OSError:
+        return {}
+    if not head.startswith("---"):
+        return {}
+    end = head.find("\n---", 3)
+    meta = {}
+    for line in head[3:end if end > 0 else 0].splitlines():
+        if ":" in line:
+            k, v = line.split(":", 1)
+            meta[k.strip().lower()] = v.strip()
+    if meta:
+        declared = meta.get("tier")
+        meta["tier"] = declared if declared in TIERS else source_tier(meta.get("url") or meta.get("source"), custom)
+    return meta
+
+
 # ---- Private (off the record) ----
 # Anything the user wraps in <private>...</private> (or <خاص>...</خاص>) is never stored: not in an
 # entry, not in a log, not in a briefing. An unclosed tag hides everything after it.

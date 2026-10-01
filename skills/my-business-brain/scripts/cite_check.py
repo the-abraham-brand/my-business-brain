@@ -36,7 +36,7 @@ import sys
 from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brainlib import read_text, load_brain, parse_date, today, sensitivity_of, fold
+from brainlib import read_text, source_meta, load_trusted, load_brain, parse_date, today, sensitivity_of, fold
 
 CITE_RE = re.compile(r"\[\[([^\]]+)\]\]")
 QUOTE_RE = re.compile(r"[\"“]([^\"”]{4,})[\"”]")
@@ -120,8 +120,9 @@ def load_sources(root):
     cache = {}
 
     def get(ref):
-        mt = re.match(r"(.+?)#L(\d+)-L(\d+)$", ref)
-        path, a, b = (mt.group(1), int(mt.group(2)), int(mt.group(3))) if mt else (ref, None, None)
+        mt = re.match(r"(.+?)#L(\d+)(?:-L(\d+))?$", ref)
+        path, a, b = ((mt.group(1), int(mt.group(2)), int(mt.group(3) or mt.group(2))) if mt
+                      else (ref, None, None))
         full = os.path.join(root, path)
         if not os.path.isfile(full):
             return None
@@ -175,12 +176,19 @@ def check(root, text, now, audience="internal"):
                 t = get_source(c)
                 if t is None:
                     row["problems"].append(f"cited source '{c}' not found (check path and line numbers)")
+                elif source_meta(os.path.join(root, c.split("#")[0]), load_trusted(root)).get("tier") == "social":
+                    row["problems"].append(f"'{c}' is a community source (social media, forum, review site): "
+                                           "it can support a signal, not a fact. Cite the official or reputable source")
                 else:
                     support.append(t)
                     if audience == "external":
                         row["warnings"].append(f"'{c}' is an internal document: confirm it may be shared")
                 continue
             e = entries.get(c)
+            if not e and re.match(r"^s-[0-9a-f]{8}$", c):
+                row["problems"].append(f"'{c}' is a signal (sentiment or lead), not a fact: confirm it at an "
+                                       "official or reputable source first")
+                continue
             if not e:
                 row["problems"].append(f"cited entry '{c}' does not exist")
                 continue

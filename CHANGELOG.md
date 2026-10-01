@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.5.0 (2026-09-28)
+
+This release gives the brain a research arm. It can keep an eye on the sources the business depends on, hear what people are saying without mistaking it for fact, keep recordings as sources, and use whatever research tools you have installed.
+
+**Sentiment and leads**
+- Posts, threads, forums, reviews and comments are never stored as facts. They're kept as signals: *sentiment* (what people are saying) or a *lead* (a claim to check at an official source).
+- A lead can be confirmed once a proper source backs it, or dismissed. Open leads show up in the session brief, the health check and the Sunday review.
+- The bulk-load planner and the watch list send social findings to signals automatically. The citation check fails a draft that cites a social source or a signal.
+- Every source now has a tier: official, reputable, internal, recording, social or other. Recordings and other sources are capped at medium confidence. You can add or reclassify sources for your business.
+
+**The watch list**
+- Follow the pages and feeds you rely on: a tax authority's news page, a regulator's notices, a supplier's prices, an industry feed.
+- Each check reports only what's new. When a new item mentions a figure that differs from one the brain holds, it names the fact and asks you to confirm at the source. The brain never changes a fact because a page changed.
+- Plain web requests only: no sign-ins, no cookies, no browser. Hidden instructions in a page are flagged.
+
+**The Sunday evening review**
+- `/my-business-brain:review` runs the week's checks in one go: the watch list, the health check, what changed, past work affected, open leads, unsaved facts, the answers you rely on, the research toolkit and the dashboard. In the first week of a month it adds last month's journal.
+- One step failing doesn't stop the rest. The report is saved in `_system/reviews/`.
+- Setup and the health check offer to schedule it for Sunday evening in your time zone.
+
+**Recordings as sources**
+- Captions or transcripts (.vtt, .srt or text) from a webinar, podcast or call become a source document with one spoken line per line, so a fact is cited to the moment it was said.
+- Rolling auto-captions are de-duplicated, private passages removed and instruction-like text flagged.
+- If yt-dlp is installed, the brain can fetch published captions itself (captions only, never the video).
+- Citations can now point at a single line (`#L42`) as well as a range.
+
+**Uses what you have, installs nothing**
+- At setup, in every health check and in every Sunday review, the brain looks for what's installed alongside it: research and document skills, converters like pandoc and pdftotext, and optional helpers like Agent Reach and yt-dlp. Every command checks this list before a job that could use a tool.
+- It uses what it finds, tells you in one line what's missing, and never installs anything, signs in or reads cookies.
+
+**Tests**
+- 66 unit tests (10 new) and 18 behaviour tests. The new behaviour test checks that a claim from a LinkedIn post is kept as a lead and never replaces the sourced VAT rate.
+
+**Smaller fixes**
+- The watch list ignores years and day numbers when comparing figures, so "from 1 January 2027" isn't mistaken for a changed value.
+- A source mentioning both the old and a new figure ("from 5% to 7.5%") is now flagged as a possible change.
+
 ## 1.4.0 (2026-09-26)
 
 This release is about trust and reach. Your knowledge stays in your folder with a record of every change, anything off the record stays off the record, and what the brain knows is easier to use: briefings, a timeline, a monthly journal and a dashboard. Several ideas were adapted from claude-mem (Apache 2.0); no code was copied.

@@ -1,13 +1,13 @@
 ---
 name: my-business-brain
-description: The business's second brain inside Claude. Keeps a local, sourced knowledge bank of the business (products, prices, customers, suppliers, policies, contracts, decisions, people) in English and Arabic; answers from it with checked citations; heals itself by finding conflicts, duplicates and stale entries; vets official information; analyses like a consultant; briefs on any topic; and turns contract dates into calendar reminders. Use whenever the user shares business information worth remembering, asks about their own business, uploads a contract, price list, policy, SOP or report, asks what the business charges, agreed or uses, wants business analysis, or asks to check official rules that affect the business. Not for general knowledge unrelated to the user's business.
+description: The business's second brain inside Claude. Keeps a local, sourced knowledge bank of the business (products, prices, customers, suppliers, policies, contracts, decisions, people) in English and Arabic; answers from it with checked citations; heals itself by finding conflicts, duplicates and stale entries; vets official information; analyses like a consultant; briefs on any topic; watches the official pages and feeds it depends on, keeping social talk as sentiment and leads rather than facts; runs a Sunday evening review; and turns contract dates into calendar reminders. Use whenever the user shares business information worth remembering, asks about their own business, uploads a contract, price list, policy, SOP or report, asks what the business charges, agreed or uses, wants business analysis, or asks to check official rules that affect the business. Not for general knowledge unrelated to the user's business.
 ---
 
 # My Business Brain
 
 A business runs on knowledge scattered across documents, inboxes and people's heads. My Business Brain gathers it into one trusted knowledge bank, keeps it correct as the business changes, and puts it to work: answering questions, spotting contradictions before they cause mistakes, analysing performance like a strategy consultant, and making sure no contract deadline is ever missed.
 
-It has ten jobs. Read the reference file for a job before doing it.
+It has eleven jobs. Read the reference file for a job before doing it.
 
 | Job | When | Reference |
 |---|---|---|
@@ -21,6 +21,7 @@ It has ten jobs. Read the reference file for a job before doing it.
 | **Guard against regression** | After changes, in every health check, and before anything leaves the business | `references/knowledge-regression.md` |
 | **Brief and report** | A topic briefing, an onboarding pack for a new hire, "what was going on around…", the monthly journal, the dashboard | `references/briefings-and-journal.md` |
 | **Start from an industry pack** | Setting up a new brain, or the business fits a known type (clinic, agency, trading, law firm, real estate, restaurant) | `references/industry-packs.md` |
+| **Research and watch** | Following official pages and feeds, hearing what customers and the market say, the Sunday evening review, recordings as sources, and using the research tools the user has installed | `references/research-and-watch.md` |
 
 Adaptive learning runs through all of them: see `references/adaptive-learning.md`. Big jobs (bulk loads, high-stakes findings) run as a small team: the plugin's read-only `brain-reader` agents and its independent `brain-checker` agent (see `references/orchestration.md`). Sensitivity labels and prompt-injection defence apply to everything: see `references/security-and-privacy.md`.
 
@@ -64,6 +65,8 @@ The folder layout and entry format are defined in `references/knowledge-model.md
 8. **Arabic and English are both first-class.** Reply in the language the user writes in. Store a fact in the language of its source, and keep `id` and `key` in English letters (for example `policy.refund.window-days`); an Arabic entry may give an English title after the Arabic one. When the brain holds both languages, search with phrasings in both. Search, conflict checks and citation checks read Arabic text, Arabic-Indic digits (٣٢٬٠٠٠) and Arabic month names, and the confidentiality and injection rules cover Arabic too.
 9. **Off the record means off the record.** Anything inside `<private>...</private>` (or `<خاص>...</خاص>`), and anything the user says is off the record or not to be saved, is never stored: not in an entry, a log, a briefing or a decision record. The scripts strip it too, and the health check flags any that slipped through.
 10. **Nothing changes without a record.** Every change the brain makes is logged in `_system/changelog.md` with the `[[id]]` of each entry it touched. The health check fingerprints the folder and reports anything edited, added or deleted outside the brain, so the user can confirm or restore it.
+11. **Social talk is a signal, not a fact.** Posts, threads, forums and reviews are kept as sentiment or leads (`scripts/signals.py`) and never cited as support. A lead becomes a fact only once an official or reputable source confirms it. Recordings are sources at medium confidence at most, unless the speaker is the authority itself.
+12. **Use what's installed; install nothing.** Check the research toolkit (`_system/toolkit.json`, refreshed with `scripts/toolkit.py <brain> detect`) before a job that could use a tool: a research skill, Agent Reach, yt-dlp for captions, a PDF or Word converter. If something would help and isn't there, say so in one line and carry on. Never install tools, sign in or read cookies on the user's behalf.
 
 ## Answering a question
 

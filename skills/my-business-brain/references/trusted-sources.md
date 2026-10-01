@@ -21,6 +21,12 @@ Use a source only if it passes all five:
 
 Blogs, law-firm marketing posts, forums, AI summaries and undated pages are leads only; follow them to the official source and cite that.
 
+## Source tiers, sentiment and leads
+
+Every source falls in one tier: `official`, `reputable`, `internal`, `recording`, `social` or `other` (`research-and-watch.md` has the table). Only official, reputable and internal sources can carry a fact at high confidence. A recording (a webinar or podcast transcript) or an `other` source is capped at medium confidence. A social or community source (a post, thread, forum, review or comment) is **never a fact**: keep it as sentiment or a lead with `scripts/signals.py`, and follow a lead to the proper source before anything is stored. The citation check fails any draft that cites a social source or a signal.
+
+The built-in lists only sort sources; they are not an approved list. Judge each source with the trust test below, and let the user add or reclassify domains in `_system/trusted-sources.json`, for example `{"official": ["tax.gov.ae"], "reputable": ["zawya.com"], "social": ["some-forum.example"]}`.
+
 ## Verify
 
 1. Open the official page or document; find the exact provision, figure or deadline.

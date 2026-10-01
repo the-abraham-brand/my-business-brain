@@ -16,7 +16,8 @@ from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from brainlib import (REQUIRED, STATUSES, SOURCE_TYPES, CONFIDENCE, DATE_FIELDS, LINK_RE, SENSITIVITY,
-                      load_brain, as_list, parse_date, norm, words, jaccard, today, injection_hits, has_private)
+                      load_brain, as_list, parse_date, norm, words, jaccard, today, injection_hits, has_private,
+                      source_tier, load_trusted)
 
 PENALTY = {"High": 5, "Medium": 2, "Low": 0.5}
 HIGH_STALE_TYPES = {"price", "contract"}
@@ -206,6 +207,20 @@ def check(root, now):
             issues.append(issue("Private text stored", "High", [m.get("id") or e["file_id"]],
                                 "the entry contains a passage marked private",
                                 "Remove the private passage (it was meant to be off the record) and log the fix"))
+
+    # Facts that rest only on a social or community source (they belong in signals)
+    trusted = load_trusted(root)
+    for e in entries:
+        m = e["meta"]
+        if not m or e["archived"] or m.get("status", "active") not in ("active", "draft"):
+            continue
+        if m.get("source_type") == "user-stated":
+            continue
+        if source_tier(m.get("source_url") or m.get("source"), trusted) == "social":
+            issues.append(issue("Social source only", "Medium", [m.get("id") or e["file_id"]],
+                                f"stored as a fact but its only source is social or community ({str(m.get('source'))[:80]})",
+                                "Confirm it at an official or reputable source and re-source it, or move it to signals "
+                                "as sentiment or a lead (signals.py add) and archive the entry"))
 
     # Links, orphans
     inbound = defaultdict(set)

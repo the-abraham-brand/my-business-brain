@@ -26,6 +26,8 @@ Each candidate gets one action:
   invalid   missing title, domain or source -> send back to the reader
   confirm   the reader's "certainty" (0-1) for this fact is below the auto-apply threshold
             (--auto, default 0.9) -> not written; shown to the user to confirm
+  signal    the source is social or community (a post, thread, review or comment): never stored
+            as a fact; kept as sentiment or a lead in _system/signals.md (with --write)
   private    the candidate was marked private (<private>...</private>): never stored
   quarantine the candidate contains text that tries to instruct an AI (possible prompt
             injection) -> never written; logged in decisions-needed for the user to see
@@ -41,7 +43,7 @@ import sys
 from datetime import timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brainlib import read_text, load_brain, norm, words, jaccard, today, parse_date, SENSITIVITY, injection_hits, CONFIDENTIAL_DOMAINS, strip_private, has_private
+from brainlib import read_text, load_brain, norm, words, jaccard, today, parse_date, SENSITIVITY, injection_hits, CONFIDENTIAL_DOMAINS, strip_private, has_private, source_tier, load_trusted
 
 OVERLAP = 0.6
 SIX_MONTH = {"price"}
@@ -74,6 +76,7 @@ def review_by(c, now):
 
 
 def plan(root, cands, now, auto=0.9):
+    trusted = load_trusted(root)
     entries = [e for e in load_brain(root) if e["meta"] and not e["archived"]
                and e["meta"].get("status", "active") in ("active", "draft", "disputed")]
     by_key = {}
@@ -111,6 +114,20 @@ def plan(root, cands, now, auto=0.9):
             row.update(action="quarantine", reason=f"text that tries to instruct an AI: \"{hits[0][:100]}\"")
             out.append(row)
             continue
+        tier = source_tier(c.get("source_url") or c.get("source"), trusted)
+        doc = str(c.get("source_path") or c.get("location") or c.get("source") or "").split("#")[0].strip()
+        if doc.startswith("sources/") and os.path.isfile(os.path.join(root, doc)):
+            from brainlib import source_meta  # a transcript or saved page declares its own tier
+            tier = source_meta(os.path.join(root, doc), trusted).get("tier") or tier
+        row["tier"] = tier
+        if tier == "social":
+            row.update(action="signal", reason="social or community source: kept as "
+                       + ("sentiment" if c.get("signal_kind") == "sentiment" else "a lead") + ", not stored as a fact",
+                       _c=c)
+            out.append(row)
+            continue
+        if tier in ("other", "recording") and str(c.get("confidence", "medium")) == "high":
+            c["confidence"] = "medium"  # not an official or reputable source: never high confidence
         k = str(c.get("key", "")).strip().lower()
         v = norm(c.get("value", ""))
         if k and k in by_key:
@@ -215,6 +232,14 @@ def write(root, rows, now):
         written.append(r["id"])
     sysdir = os.path.join(root, "_system")
     os.makedirs(sysdir, exist_ok=True)
+    signals = [r for r in rows if r["action"] == "signal"]
+    if signals:
+        from signals import add as add_signal
+        for r in signals:
+            c = r["_c"]
+            summary = c.get("body") or (f"{c['title']}: {c['value']}" if c.get("value") else c["title"])
+            add_signal(root, "sentiment" if c.get("signal_kind") == "sentiment" else "lead", summary,
+                       c.get("source_url") or c["source"], topic=c.get("domain", ""), when=now)
     conflicts = [r for r in rows if r["action"] == "conflict"]
     quarantined = [r for r in rows if r["action"] == "quarantine"]
     if quarantined:
@@ -243,12 +268,15 @@ def write(root, rows, now):
         with open(path, "w", encoding="utf-8") as f:
             f.write(head + "\n\n" + "\n".join(lines) + "\n" + rest)
     with open(os.path.join(sysdir, "changelog.md"), "a", encoding="utf-8") as f:
-        f.write(f"\n## {now.isoformat()} bulk ingest\n")
-        f.write(f"- Added {len(written)}: {', '.join(written) if written else 'none'}\n")
+        d = now.isoformat()
+        f.write(f"- {d} Bulk load: added {len(written)}"
+                + (": " + ", ".join(f"[[{w}]]" for w in written) if written else "") + "\n")
         if conflicts:
-            f.write(f"- Conflicts sent to decisions-needed: {len(conflicts)}\n")
+            f.write(f"- {d} Bulk load: {len(conflicts)} conflict(s) sent to decisions-needed\n")
         if quarantined:
-            f.write(f"- Quarantined for suspicious instructions: {len(quarantined)}\n")
+            f.write(f"- {d} Bulk load: {len(quarantined)} candidate(s) quarantined for suspicious instructions\n")
+        if signals:
+            f.write(f"- {d} Bulk load: {len(signals)} social or community item(s) kept as sentiment or leads\n")
     return written
 
 

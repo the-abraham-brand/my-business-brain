@@ -82,6 +82,21 @@ def main():
                                  " Offer to continue it."))
     except Exception:
         pass
+    try:
+        from signals import read as read_signals
+        leads = [r for r in read_signals(root) if r.get("kind") == "lead" and r.get("status") == "open"]
+        if leads:
+            lines.append(f"{len(leads)} open lead(s) from social or community sources (_system/signals.md): "
+                         "not facts; confirm at an official source or dismiss.")
+    except Exception:
+        pass
+    try:
+        rdir = os.path.join(root, "_system", "reviews")
+        last = sorted(f[:10] for f in os.listdir(rdir) if f.endswith(".md"))[-1] if os.path.isdir(rdir) else ""
+        if last and (now - parse_date(last)).days > 13:
+            lines.append(f"The last Sunday review was {last}; offer /my-business-brain:review.")
+    except Exception:
+        pass
     if stale:
         lines.append(f"{len(stale)} entr{'y is' if len(stale) == 1 else 'ies are'} past review date.")
     lines.append("If the user is working on the business, mention anything urgent briefly and offer to deal "

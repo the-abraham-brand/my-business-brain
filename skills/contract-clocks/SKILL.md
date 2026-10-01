@@ -8,7 +8,7 @@ description: Contract Clocks from My Business Brain. Extracts the key dates from
 Never miss a renewal, notice deadline or expiry.
 
 1. Load the `my-business-brain` skill from this plugin (via the Skill tool). If it cannot be loaded, read `../my-business-brain/references/contract-clocks.md` directly.
-2. Read the whole contract. Qualify it: term longer than one month, or auto-renewing (`scripts/decide.py rules <brain> --type contract_qualifies --start <start> --end <end>` settles it from the dates). Otherwise say so and stop (offer to store it anyway).
+2. Read the whole contract. For a scanned PDF or a Word file, use a converter the research toolkit lists (`scripts/toolkit.py <brain> has pdftotext`, or the installed pdf and docx skills) before reading by hand. Qualify it: term longer than one month, or auto-renewing (`scripts/decide.py rules <brain> --type contract_qualifies --start <start> --end <end>` settles it from the dates). Otherwise say so and stop (offer to store it anyway).
 3. Extract the dates and terms with clause references, and compute derived dates with `scripts/contract_dates.py` (from the core skill folder). Flag weekends and ask about public holidays in the contract's jurisdiction.
 4. Show the date table with the **notice deadline** first and highlighted. Ask the user to confirm or correct. Never add unconfirmed dates.
 5. Use the calendar from the plugin settings (`${user_config.calendar}`) or `_system/preferences.md`, or ask once and save it. Time zone: `${user_config.timezone}`; weekend: `${user_config.weekend}` (pass it to `contract_dates.py --weekend`).

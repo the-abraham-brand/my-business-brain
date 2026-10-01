@@ -15,6 +15,7 @@ business-brain/
     <yyyy-mm-dd>-<topic>.md  saved analyses and recommendations
   sources/                 source documents the user wants kept, with a .md or .txt copy
                            of each so they can be searched and cited to the line
+    transcripts/<slug>.md  recordings kept as sources, one spoken line per line, with their tier
   _system/
     changelog.md           every add, update, supersede, archive: `- YYYY-MM-DD what and why [[id]]`
     health-report.md       latest health check
@@ -30,6 +31,11 @@ business-brain/
     briefings/  journal/   topic briefings, onboarding packs and monthly journals
     dashboard.html         the one-page dashboard
     snapshots/  digests/   daily snapshots and weekly change digests
+    signals.jsonl, signals.md   sentiment and leads from social sources (never facts)
+    watch.json, watch/     the watch list, and what each check found
+    reviews/               the Sunday evening reviews
+    toolkit.json           research tools, skills and plugins the brain can use
+    trusted-sources.json   optional: the business's own source tiers
 ```
 
 Domains (folders under `entries/`) start with: `company`, `products`, `pricing`, `customers`, `suppliers`, `people`, `policies`, `procedures`, `contracts`, `finance`, `metrics`, `marketing`, `sales`, `operations`, `legal-regulatory`, `decisions`, `glossary`. Add a domain only when an entry does not fit any existing one, and record it in `BRAIN.md`.

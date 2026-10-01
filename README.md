@@ -6,7 +6,7 @@
 
 Most businesses keep their knowledge in price sheets, contracts, inboxes and a few people's heads. Over time it drifts. Two documents quote different prices. A policy changes, but the old version is still being sent to customers. A notice deadline slips past and a contract you meant to cancel renews for another year.
 
-My Business Brain lives inside Claude and deals with this in four ways.
+My Business Brain lives inside Claude and deals with this in five ways.
 
 ## 1. It remembers what your business knows, in English or Arabic
 
@@ -43,6 +43,16 @@ My Business Brain lives inside Claude and deals with this in four ways.
 - Documents can't give it orders. If a file contains hidden text trying to instruct an AI, that text is set aside and shown to you, never followed.
 - The small calls it makes all day, like which area a fact belongs to or how urgent something is, have fixed answers to choose from. Clear cases are settled by simple rules. For the rest, it tracks how often it gets them right and adjusts how sure it lets itself be. When it's confident it goes ahead, when it's unsure it asks you, and when it's guessing it gets a second opinion. Correct it the same way three times and it suggests a rule you can approve.
 - It proposes and you decide. Only housekeeping happens automatically. Anything that changes what the business knows is checked with you first.
+
+## 5. It keeps an eye on the world outside
+
+A business also depends on things it doesn't control: a tax rate, a licence fee, a supplier's price list, what customers are saying. The brain can watch those for you, and it's careful about what it believes.
+
+- **A watch list.** Give it the pages and feeds you rely on, like the tax authority's news page, a regulator's notices or a supplier's prices. It checks them and tells you what's new. If something might change a fact it holds (say the VAT page now mentions 7.5% while the brain has 5%), it tells you which fact and asks you to confirm at the source. It never changes a fact just because a web page did.
+- **Sentiment and leads, not facts.** Posts, threads, forums and reviews can be useful, but they aren't evidence. When research turns one up, the brain keeps it as a signal: *sentiment* (what customers are saying) or a *lead* (a claim worth checking, like "a post says licence fees go up in January"). A lead becomes a fact only once an official or reputable source confirms it, and the citation check won't let a draft lean on a post.
+- **Recordings as sources.** A regulator's webinar, a supplier's briefing or an earnings call can be kept as a transcript, one spoken line per line, so a fact is cited to the exact moment it was said. Recordings count as good but not official, unless the speaker is the authority itself.
+- **The Sunday evening review.** One command runs the week's checks: the watch list, the health check, what changed, who was sent outdated figures, open leads, facts mentioned but never saved, and the answers you rely on. You get one short report to set the week up, and it can run by itself every Sunday evening in your time zone.
+- **It uses what you have.** At setup, and in every review, the brain looks at what's installed alongside it: research skills, document converters, and optional helpers like [Agent Reach](https://github.com/Panniantong/Agent-Reach) for reading web pages, YouTube and podcast transcripts, Reddit and more. It uses what it finds and tells you what's missing, but it never installs anything, signs in for you or touches your cookies.
 
 ## Arabic, built in
 
@@ -100,6 +110,7 @@ You set these once when you enable the plugin, and can change them any time (`/c
 | `/my-business-brain:analyze` | Gives you an analysis and a recommendation |
 | `/my-business-brain:contract-clocks` | Puts a contract's key dates on your calendar |
 | `/my-business-brain:brief` | Makes a briefing, onboarding pack, timeline, monthly journal or dashboard |
+| `/my-business-brain:review` | Runs the Sunday evening review, and adds pages or feeds to the watch list |
 
 You'll rarely need them. The brain switches on by itself when you share business information or ask about your business, and it offers Contract Clocks whenever you share a contract.
 
@@ -125,9 +136,11 @@ You'll rarely need them. The brain switches on by itself when you share business
     entries/<area>/<fact>.md
     contracts/register.md  contracts/calendar/*.ics
     analytics/
+    sources/  searchable copies of long documents, and transcripts/
     _system/  changelog, health report, decisions waiting, lessons, preferences, questions,
              archive/, decision log, rules, key questions, answer log, snapshots/, weekly digests/,
-             fingerprints, unsaved facts, resume card, industry pack, briefings/, journal/, dashboard
+             fingerprints, unsaved facts, resume card, industry pack, briefings/, journal/, dashboard,
+             sentiment and leads, watch list, reviews/, research toolkit
   ```
 
 - **No installs.** The helper scripts use plain Python 3 with nothing extra. Search and the health check take well under a second, even with 2,500 entries.
@@ -139,6 +152,8 @@ You'll rarely need them. The brain switches on by itself when you share business
 - There is one truth per fact. When two sources disagree, you're asked; nothing is quietly overwritten.
 - It proposes, you decide.
 - Official information comes from official sources, not blogs or summaries.
+- What people say online is a lead or a feeling, never a fact.
+- It uses the tools you've installed and never installs anything itself.
 - It earns its confidence, and it measures whether it deserved it.
 - Off the record means off the record.
 - Nothing changes without a record.
@@ -147,8 +162,8 @@ You'll rarely need them. The brain switches on by itself when you share business
 
 ## How it's tested
 
-- **56 unit tests** of the scripts and hooks, run on Linux, macOS and Windows with every change, on the oldest and newest supported Python.
-- **17 behaviour tests**, each run with and without the plugin on a made-up company's brain.
+- **66 unit tests** of the scripts and hooks, run on Linux, macOS and Windows with every change, on the oldest and newest supported Python.
+- **18 behaviour tests**, each run with and without the plugin on a made-up company's brain.
   - **6 show what the plugin adds.** With it, all six passed. Without it, Claude:
     - gave no health score and missed the problems planted for it;
     - made a calendar file with no reminders;
@@ -156,7 +171,7 @@ You'll rarely need them. The brain switches on by itself when you share business
     - couldn't say which customers had been quoted an old price;
     - missed part of the week's changes;
     - put a confidential contract fee in a briefing meant for the team.
-  - **11 make sure the basics never slip:**
+  - **12 make sure the basics never slip:**
     - answers cite the right facts;
     - clashes are raised, not overwritten;
     - wrong figures in a draft are caught;
@@ -167,7 +182,8 @@ You'll rarely need them. The brain switches on by itself when you share business
     - past prices come from the archive;
     - a quietly changed answer is spotted;
     - pay details in an Arabic HR note stay out of a public post;
-    - text marked private is never written into the brain.
+    - text marked private is never written into the brain;
+    - a claim from a social media post is kept as a lead to check, not stored as a fact.
 
     All passed.
 
