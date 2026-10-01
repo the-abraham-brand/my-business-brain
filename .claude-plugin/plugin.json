@@ -1,7 +1,7 @@
 {
   "name": "my-business-brain",
-  "version": "1.4.0",
-  "description": "A trusted memory for your business inside Claude, in English and Arabic. Keeps what your company knows as plain files in your own folder, each fact with its source and every change logged. Catches clashing facts and edits made behind its back, tells you who was sent an outdated price, briefs you or your team, keeps a journal and dashboard, and puts contract deadlines on your calendar. Confidential details stay in; off-the-record is never stored. By Abraham.",
+  "version": "1.5.0",
+  "description": "A trusted memory for your business inside Claude, in English and Arabic. Keeps what your company knows as plain files in your folder, each fact sourced and every change logged. Catches clashing facts and outside edits, tells you who got an outdated price, watches the official pages you rely on, keeps social chatter as leads rather than facts, runs a Sunday review, briefs your team and puts contract deadlines on your calendar. Confidential stays in; off the record is never stored. By Abraham.",
   "author": {
     "name": "Abraham",
     "url": "https://theabrahambrand.com"
