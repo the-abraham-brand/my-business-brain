@@ -47,7 +47,30 @@ def main():
     suspicious = [i for i in issues if i["type"] == "Suspicious instructions"]
     stale = [i for i in issues if i["type"] == "Stale"]
 
-    lines = [f"My Business Brain is at {root} ({len(active)} active entries, health {s:g}/100)."]
+    lines = []
+    try:
+        from identity import load as load_id, card
+        ident = load_id(root)
+        lines.append(card(ident))
+    except Exception:
+        ident = None
+    lines.append(f"The business brain is at {root} ({len(active)} active entries, health {s:g}/100).")
+    try:
+        from commitments import items as commits
+        from delegations import items as dels
+        late = [c for c in commits(root, now=now) if c["direction"] == "we-owe" and c.get("due") and c["due"] < now.isoformat()]
+        soon = [c for c in commits(root, now=now) if c["direction"] == "we-owe" and c.get("due")
+                and now.isoformat() <= c["due"] and (parse_date(c["due"]) - now).days <= 2]
+        chase = [d for d in dels(root, now=now) if d["overdue"]]
+        if late:
+            lines.append(f"{len(late)} promise(s) the business made are overdue: "
+                         + " | ".join(f"{c['what'][:90]} (to {c['party']}, due {c['due']})" for c in late[:2]) + ".")
+        if soon:
+            lines.append(f"{len(soon)} promise(s) due within two days: " + " | ".join(c["what"][:90] for c in soon[:2]) + ".")
+        if chase:
+            lines.append(f"{len(chase)} delegated task(s) overdue: " + " | ".join(f"{d['owner']}: {d['task'][:70]}" for d in chase[:2]) + ".")
+    except Exception:
+        pass
     if deadlines:
         lines.append("Contract dates: " + "; ".join(t for _, t in deadlines[:4]) + ".")
     if decisions:
@@ -100,7 +123,8 @@ def main():
     if stale:
         lines.append(f"{len(stale)} entr{'y is' if len(stale) == 1 else 'ies are'} past review date.")
     lines.append("If the user is working on the business, mention anything urgent briefly and offer to deal "
-                 "with it; do not change the brain without asking. Settings: calendar="
+                 "with it (/my-business-brain:chief plans and delegates the work); do not change the brain, send, "
+                 "pay or promise anything without asking. Settings: calendar="
                  f"{option('calendar', 'ask') or 'ask'}, currency={option('currency') or 'not set'}, "
                  f"weekend={option('weekend', 'sat-sun') or 'sat-sun'}, capture={option('capture_mode', 'ask') or 'ask'}, "
                  f"language={option('language', 'match') or 'match'}.")

@@ -1,0 +1,31 @@
+{
+  "id": "cfo",
+  "name": "CFO lens",
+  "summary": "Money first: cash, margins, costs, pricing and risk.",
+  "focus_domains": [
+    "finance",
+    "pricing",
+    "metrics",
+    "contracts",
+    "suppliers"
+  ],
+  "always_ask": [
+    "What does this do to cash in the next 90 days?",
+    "What is the margin effect, per unit and in total?",
+    "What are we committed to paying, and when can we get out?",
+    "What is the downside if we're wrong?"
+  ],
+  "metrics": [
+    "cash runway",
+    "gross margin",
+    "cost per customer",
+    "revenue per plan",
+    "contract liabilities"
+  ],
+  "report_shape": "Number first, then the driver, then the risk, then the recommendation.",
+  "experts": {
+    "analyst": 1.0,
+    "clerk": 0.5
+  },
+  "default_depth": "deliberate"
+}

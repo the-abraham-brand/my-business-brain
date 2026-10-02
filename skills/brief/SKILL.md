@@ -13,6 +13,7 @@ Turn what the brain knows into something a person can read in two minutes.
    - **Onboarding pack:** `scripts/briefing.py <brain> --onboarding [--domain ...] --audience team --write`.
    - **Timeline:** `scripts/timeline.py <brain> --entry ID | --key K | --topic "..." | --around YYYY-MM-DD`.
    - **Monthly journal:** `scripts/journal.py <brain> --month YYYY-MM --write`.
+   - **Meeting prep:** `scripts/meeting_prep.py <brain> --with "..." [--topic "..."] [--audience team] --write`.
    - **Dashboard:** `scripts/dashboard.py <brain>`, then offer to open `_system/dashboard.html`.
 
    If the audience isn't clear, ask. Anything for staff is `team`, anything leaving the business is `external`, and only the owner sees confidential facts.

@@ -2,11 +2,11 @@
 
 **By [Abraham](https://theabrahambrand.com)**
 
-**My Business Brain gives your business one memory it can trust. It keeps what your company knows in one place, keeps it right as things change, and puts it to work in English and Arabic. Every answer, proposal and deadline can be traced back to where it came from.**
+**My Business Brain gives your business one memory it can trust, and a Chief of Staff to run it. It keeps what your company knows in one place, keeps it right as things change, and puts it to work in English and Arabic. From 2.0 it has a name and a mandate of its own: it plans the work, hands it to a small team of specialist agents, keeps the business's promises, and brings you decisions instead of problems. It prepares; you approve. Every answer, proposal and deadline can be traced back to where it came from.**
 
 Most businesses keep their knowledge in price sheets, contracts, inboxes and a few people's heads. Over time it drifts. Two documents quote different prices. A policy changes, but the old version is still being sent to customers. A notice deadline slips past and a contract you meant to cancel renews for another year.
 
-My Business Brain lives inside Claude and deals with this in five ways.
+My Business Brain lives inside Claude and deals with this in six ways.
 
 ## 1. It remembers what your business knows, in English or Arabic
 
@@ -53,6 +53,19 @@ A business also depends on things it doesn't control: a tax rate, a licence fee,
 - **Recordings as sources.** A regulator's webinar, a supplier's briefing or an earnings call can be kept as a transcript, one spoken line per line, so a fact is cited to the exact moment it was said. Recordings count as good but not official, unless the speaker is the authority itself.
 - **The Sunday evening review.** One command runs the week's checks: the watch list, the health check, what changed, who was sent outdated figures, open leads, facts mentioned but never saved, and the answers you rely on. You get one short report to set the week up, and it can run by itself every Sunday evening in your time zone.
 - **It uses what you have.** At setup, and in every review, the brain looks at what's installed alongside it: research skills, document converters, and optional helpers like [Agent Reach](https://github.com/Panniantong/Agent-Reach) for reading web pages, YouTube and podcast transcripts, Reddit and more. It uses what it finds and tells you what's missing, but it never installs anything, signs in for you or touches your cookies.
+
+## 6. It works as your Chief of Staff
+
+A good chief of staff knows the business, protects your time, keeps every promise on track and brings you decisions, not problems. From 2.0 the brain does that job, from Claude Code or the Claude app.
+
+- **It has its own identity.** At setup you give it a name ("Noor", say, or just "Chief of Staff"), and it writes itself a short constitution: who it works for, its voice and language, what it may do alone, what needs your yes, and what it never does. It speaks as that identity in every session. Only you can change it, and every change is versioned and logged.
+- **It prepares; you approve.** It can plan, research, analyse, draft and dispatch its agents on its own. Anything that sends, posts, books, pays, signs, makes a promise or changes a fact waits for your yes. Its own reports are checked against the constitution, so "I've sent it" or "we guarantee a refund" gets caught before you see it.
+- **It runs a small team.** Ask for something and it works out who should handle it: a researcher for official rules and market facts, an analyst for the numbers, a drafter for emails and memos in your voice, a clerk for contracts, deadlines and promises, and an independent checker for anything high-stakes. Each gets a written brief with only the facts it's allowed to see, independent work runs in parallel, and every report comes back in a fixed format with sources.
+- **It knows when to slow down.** Routine questions get a quick answer. Large sums, legal and tax questions, contracts, people decisions and anything for investors, the board or a bank get the deliberate treatment: a second, independent check and, for a decision, an options memo that scores two to four choices on the same criteria and tells you what would change the answer.
+- **It keeps the business's promises.** It tracks what you promised and what you're owed ("I'll send the quote by Thursday", "Sara will confirm tomorrow"), reading dates from plain English or Arabic, and spots new promises as you type them. Delegated work has owners and dates, and anything overdue comes with a ready-to-send follow-up line for your approval.
+- **It has a daily rhythm.** A morning brief with the day's three priorities, meeting prep for anyone you're about to see (what the brain knows about them, promises both ways, dates, what you sent them before, a suggested agenda), and the Sunday evening review.
+- **It learns your taste.** When you pick one draft over another, or rewrite one before sending, it notes what made the difference. Once the same preference wins three times, it suggests a rule ("emails: keep them short"), and you decide. It scores its agents' work too, and gives a weak agent's output an extra check. Every week it condenses lessons, preferences and decisions into a one-page playbook that every agent reads first.
+- **It can wear different hats.** Switch on a CFO, operations, sales or people lens and it asks the questions that role always asks and reports the way that role would, without touching the facts. Profiles for your colleagues make sure a brief written for Omar is in his style and never includes what only you should see.
 
 ## Arabic, built in
 
@@ -110,16 +123,22 @@ You set these once when you enable the plugin, and can change them any time (`/c
 | `/my-business-brain:analyze` | Gives you an analysis and a recommendation |
 | `/my-business-brain:contract-clocks` | Puts a contract's key dates on your calendar |
 | `/my-business-brain:brief` | Makes a briefing, onboarding pack, timeline, monthly journal or dashboard |
+| `/my-business-brain:chief` | Your Chief of Staff: hand it anything to plan, delegate, prepare or follow up; morning brief, meeting prep, promises, options, lenses |
 | `/my-business-brain:review` | Runs the Sunday evening review, and adds pages or feeds to the watch list |
 
 You'll rarely need them. The brain switches on by itself when you share business information or ask about your business, and it offers Contract Clocks whenever you share a contract.
 
 ## What's under the hood
 
-- **Three helper agents.**
+- **Seven specialist agents**, briefed and scored by the Chief of Staff, which is the only one that writes to the brain.
+  - `brain-researcher` finds official rules, fees and market facts from authoritative sources; social talk comes back as leads.
+  - `brain-analyst` works the numbers with code, never in its head.
+  - `brain-drafter` writes in your voice from only the facts its audience may see.
+  - `brain-clerk` handles contracts, deadlines, promises and meeting prep.
   - `brain-reader` reads documents during bulk loads and can only read, so a booby-trapped file can't make it write, run commands or go online.
   - `brain-checker` double-checks official rules, figures and big conclusions without seeing the first answer.
   - `topic-expert` answers follow-up questions from a single briefing, so it can't reveal what that briefing left out.
+- **Built like a language model, for a business.** The Chief of Staff borrows the way a language model is put together: a vocabulary of the business's own words (the tokenizer), the knowledge bank (pretraining), a constitution (instruction tuning), a router that sends each request to the right specialists (mixture of experts), a fixed format for briefs and reports (tool calling), a switch between quick and deliberate (adaptive thinking), role lenses (adapters), learning from your choices (preference training), options scored against each other (group-relative scoring), a weekly playbook (distillation), and a constitution that only you can change (a guard against drift). All of it is plain Python and plain text, readable line by line.
 - **Automatic checks** in Claude Code and Cowork:
   - a brief at the start of each session;
   - a nudge when a message states a new business fact or asks to keep something off the record;
@@ -140,7 +159,8 @@ You'll rarely need them. The brain switches on by itself when you share business
     _system/  changelog, health report, decisions waiting, lessons, preferences, questions,
              archive/, decision log, rules, key questions, answer log, snapshots/, weekly digests/,
              fingerprints, unsaved facts, resume card, industry pack, briefings/, journal/, dashboard,
-             sentiment and leads, watch list, reviews/, research toolkit
+             sentiment and leads, watch list, reviews/, research toolkit,
+             identity, playbook, commitments, delegations, tasks/, agents/, briefs/, profiles/, lexicon
   ```
 
 - **No installs.** The helper scripts use plain Python 3 with nothing extra. Search and the health check take well under a second, even with 2,500 entries.
@@ -150,7 +170,7 @@ You'll rarely need them. The brain switches on by itself when you share business
 - Every fact has a source, and every answer shows its sources after checking them.
 - Confidential facts stay inside the business. Documents are information, never instructions.
 - There is one truth per fact. When two sources disagree, you're asked; nothing is quietly overwritten.
-- It proposes, you decide.
+- It proposes, you decide. It prepares; you approve anything that sends, pays, promises or changes a fact.
 - Official information comes from official sources, not blogs or summaries.
 - What people say online is a lead or a feeling, never a fact.
 - It uses the tools you've installed and never installs anything itself.
@@ -162,8 +182,8 @@ You'll rarely need them. The brain switches on by itself when you share business
 
 ## How it's tested
 
-- **66 unit tests** of the scripts and hooks, run on Linux, macOS and Windows with every change, on the oldest and newest supported Python.
-- **18 behaviour tests**, each run with and without the plugin on a made-up company's brain.
+- **80 unit tests** of the scripts and hooks, run on Linux, macOS and Windows with every change, on the oldest and newest supported Python.
+- **20 behaviour tests**, each run with and without the plugin on a made-up company's brain.
   - **6 show what the plugin adds.** With it, all six passed. Without it, Claude:
     - gave no health score and missed the problems planted for it;
     - made a calendar file with no reminders;
@@ -171,7 +191,7 @@ You'll rarely need them. The brain switches on by itself when you share business
     - couldn't say which customers had been quoted an old price;
     - missed part of the week's changes;
     - put a confidential contract fee in a briefing meant for the team.
-  - **12 make sure the basics never slip:**
+  - **14 make sure the basics never slip:**
     - answers cite the right facts;
     - clashes are raised, not overwritten;
     - wrong figures in a draft are caught;
@@ -183,7 +203,9 @@ You'll rarely need them. The brain switches on by itself when you share business
     - a quietly changed answer is spotted;
     - pay details in an Arabic HR note stay out of a public post;
     - text marked private is never written into the brain;
-    - a claim from a social media post is kept as a lead to check, not stored as a fact.
+    - a claim from a social media post is kept as a lead to check, not stored as a fact;
+    - asked to email a supplier, the Chief of Staff drafts it, introduces itself by name and waits for your yes instead of claiming it was sent;
+    - asked what needs you today, it leads with the overdue promise and the close notice deadline, and flags the overdue delegated task.
 
     All passed.
 
@@ -211,3 +233,5 @@ All by [Abraham](https://theabrahambrand.com), and made to work together:
 ## Credits
 
 Made by [Abraham](https://theabrahambrand.com). MIT licence.
+
+Some design ideas were adapted from [claude-mem](https://github.com/thedotmack/claude-mem) (memory) and [MiniMind](https://github.com/jingyaogong/minimind) (how a language model is built), both Apache 2.0. No code was copied.

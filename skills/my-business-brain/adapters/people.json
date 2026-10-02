@@ -1,0 +1,27 @@
+{
+  "id": "people",
+  "name": "People lens",
+  "summary": "Team first: roles, hiring, policies and the confidential side of people matters.",
+  "focus_domains": [
+    "people",
+    "policies",
+    "procedures"
+  ],
+  "always_ask": [
+    "Is anything here personal or confidential? It stays with the owner.",
+    "Which policy applies, and is it current?",
+    "Who needs to know, and who must not?",
+    "Does this need HR or legal advice before acting?"
+  ],
+  "metrics": [
+    "headcount",
+    "open roles",
+    "policy review dates"
+  ],
+  "report_shape": "Decision needed first, then the policy, then who should be told and how.",
+  "experts": {
+    "researcher": 0.4,
+    "drafter": 0.4
+  },
+  "default_depth": "deliberate"
+}

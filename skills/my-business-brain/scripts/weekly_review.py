@@ -32,7 +32,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from brainlib import today  # noqa: E402
 
-STEPS = ("watch", "health", "diff", "impact", "signals", "sweep", "golden", "toolkit", "dashboard", "journal")
+STEPS = ("watch", "health", "diff", "impact", "signals", "promises", "agents", "sweep", "golden", "toolkit",
+         "playbook", "dashboard", "journal")
 
 
 def run(script, *args, timeout=600):
@@ -105,6 +106,26 @@ def review(root, now, skip=(), lang="english"):
         body += [f"- [{r['id']}] {r['kind']}: {r['summary'][:160]} ({r.get('source', '')})"
                  + (" ⚠ " + r["warning"] if r.get("warning") else "") for r in (leads + [r for r in rows if r not in leads])[:15]]
         sections.append("## Sentiment and leads\n\n" + "\n".join(body) + "\n")
+    # Chief of Staff: promises both ways, delegated work, how the agents did
+    if "promises" not in skip:
+        try:
+            from commitments import items as commits
+            from delegations import items as dels
+            cs, ds = commits(root, now=now), dels(root, now=now)
+            late = [c for c in cs if c.get("due") and c["due"] < d]
+            headline["promises_late"] = len([c for c in late if c["direction"] == "we-owe"])
+            body = [f"{len([c for c in cs if c['direction'] == 'we-owe'])} promise(s) we owe, "
+                    f"{len([c for c in cs if c['direction'] == 'owed'])} owed to us, {len(ds)} delegated task(s) open."]
+            body += [f"- {'We owe' if c['direction'] == 'we-owe' else 'Owed by'} {c['party']}: {c['what'][:120]} ({c['due_label']})"
+                     for c in cs[:12]]
+            body += [f"- Delegated to {x['owner']}: {x['task'][:120]} ({x['status']}, {x['due_label']})" for x in ds[:8]]
+            sections.append("## Promises and delegations\n\n" + "\n".join(body) + "\n")
+        except Exception as e:
+            failed.append(f"Promises and delegations ({type(e).__name__})")
+    if "agents" not in skip:
+        code, out = run("delegate.py", root, "scorecard")
+        if code == 0:
+            sections.append(f"## How the agents did\n\n{short(out, 10)}\n")
     # 6. unsaved facts
     step("sweep", "Unsaved facts", "sweep.py", "--list")
     # 7. golden questions (exit 1 means a regression was found: that is a result, not a failure)
@@ -117,6 +138,8 @@ def review(root, now, skip=(), lang="english"):
             failed.append(f"Golden answers (exit {code})")
     # 8. toolkit
     step("toolkit", "Research toolkit", "toolkit.py", root, "detect", lines=15)
+    # the week's lessons, preferences and decisions, distilled into the playbook every agent reads first
+    step("playbook", "Playbook refreshed", "distill.py", "--today", d, lines=2)
     # 9. dashboard, and the journal on the first review of a month
     step("dashboard", "Dashboard", "dashboard.py", "--lang", lang, "--today", d, lines=3)
     if "journal" not in skip and now.day <= 7:
@@ -136,6 +159,8 @@ def review(root, now, skip=(), lang="english"):
         bits.append(f"{headline['watch']} watch-list item(s)")
     if "leads" in headline:
         bits.append(f"{headline['leads']} open lead(s)")
+    if headline.get("promises_late"):
+        bits.append(f"{headline['promises_late']} overdue promise(s)")
     if "golden" in headline:
         bits.append(f"golden answers {headline['golden']}")
     if bits:
@@ -162,7 +187,10 @@ def main(argv):
         print(f"Brain folder not found: {root}")
         return 1
     val = lambda n, dflt="": args[args.index(n) + 1] if n in args and args.index(n) + 1 < len(args) else dflt
-    now = today(val("--today")) if "--today" in args else today()
+    from ledger import cli_today
+    now = cli_today(args)
+    if now is None:
+        return 2
     skip = {s.strip() for s in val("--skip").split(",") if s.strip()}
     res = review(root, now, skip, val("--lang", "english"))
     if "--json" in args:

@@ -1,0 +1,31 @@
+{
+  "id": "sales",
+  "name": "Sales lens",
+  "summary": "Customers first: pipeline, pricing, objections and promises made to customers.",
+  "focus_domains": [
+    "customers",
+    "pricing",
+    "products",
+    "sales",
+    "marketing"
+  ],
+  "always_ask": [
+    "Which customers does this affect, and what were they told?",
+    "Is the price we quote the current one?",
+    "What did we promise this customer, and is it on track?",
+    "What do customers say about it (sentiment, not fact)?"
+  ],
+  "metrics": [
+    "pipeline value",
+    "win rate",
+    "churn",
+    "price changes sent to customers"
+  ],
+  "report_shape": "Customer impact first, then the offer, then the next step and owner.",
+  "experts": {
+    "drafter": 0.8,
+    "analyst": 0.4,
+    "researcher": 0.3
+  },
+  "default_depth": "quick"
+}

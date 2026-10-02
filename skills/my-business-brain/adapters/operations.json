@@ -1,0 +1,30 @@
+{
+  "id": "operations",
+  "name": "Operations lens",
+  "summary": "Delivery first: suppliers, processes, capacity and deadlines.",
+  "focus_domains": [
+    "operations",
+    "procedures",
+    "suppliers",
+    "contracts",
+    "policies"
+  ],
+  "always_ask": [
+    "Who owns this, and by when?",
+    "What breaks if this slips a week?",
+    "Which supplier or contract does this depend on?",
+    "Is there a written procedure, and is it current?"
+  ],
+  "metrics": [
+    "on-time delivery",
+    "open delegations",
+    "supplier issues",
+    "notice deadlines"
+  ],
+  "report_shape": "Status first (on track, at risk, late), then owners and dates, then blockers.",
+  "experts": {
+    "clerk": 1.0,
+    "analyst": 0.3
+  },
+  "default_depth": "quick"
+}

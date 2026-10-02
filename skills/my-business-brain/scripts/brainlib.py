@@ -174,6 +174,57 @@ def sensitivity_of(meta):
     return "confidential" if (meta or {}).get("domain") in CONFIDENTIAL_DOMAINS else "internal"
 
 
+# --- Keeping confidential facts out of team and external work -----------------------
+def confidential_markers(root):
+    """What would give a confidential entry away: its id, its value and the figures in it
+    (amounts, rates, numbers), for every confidential entry in the brain."""
+    ids, phrases, figures = set(), set(), set()
+    for e in load_brain(root):
+        m = e["meta"] or {}
+        if not m or sensitivity_of(m) != "confidential":
+            continue
+        ids.add(str(m.get("id") or e["file_id"]).lower())
+        v = m.get("value")
+        v = fold(str(v or "")).lower().strip() if not isinstance(v, list) else ""
+        if len(v) >= 6:
+            phrases.add(v)
+        for n in re.findall(r"\d[\d,]*(?:\.\d+)?%?", fold(str(m.get("value", "")) + " " + e["body"])):
+            n = n.replace(",", "").rstrip(".")
+            if n.endswith("%"):
+                figures.add(n)
+                continue
+            if len(n.replace(".", "")) >= 3 and not (len(n) == 4 and n.startswith(("19", "20"))):
+                figures.add(n)
+                try:
+                    v = float(n)
+                    if v >= 1000 and v % 100 == 0:  # 28000 is also "28k" and "28.0k"
+                        figures.add(("%g" % (v / 1000)) + "k")
+                except ValueError:
+                    pass
+    return {"ids": ids, "phrases": phrases, "figures": figures}
+
+
+def mentions_confidential(text, markers):
+    """True if text names a confidential entry, quotes its value or uses one of its figures."""
+    t = fold(str(text or "")).lower()
+    if not t.strip():
+        return False
+    if any(i in t for i in markers["ids"]) or any(p in t for p in markers["phrases"]):
+        return True
+    nums = {n.replace(",", "").rstrip(".") for n in re.findall(r"\d[\d,]*(?:\.\d+)?(?:%|k\b)?", t)}
+    nums |= {n[:-1] for n in nums if n.endswith(("%", "k"))} - {""}
+    return bool(nums & markers["figures"])
+
+
+def entry_id_of(citation):
+    """'[[id]]', ' id ', 'id#L3' or 'entries/x/id.md' -> 'id'."""
+    c = str(citation or "").strip().strip("[]").strip()
+    c = c.split("#")[0]
+    if c.startswith(("entries/", "_system/archive/")) and c.endswith(".md"):
+        c = os.path.basename(c)[:-3]
+    return c.lower()
+
+
 # --- Prompt-injection screening ------------------------------------------------------
 # Documents are data. Text inside them that tries to instruct an AI is flagged, never
 # followed. These patterns catch the common forms; the reader and coordinator still

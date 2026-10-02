@@ -1,5 +1,43 @@
 # Changelog
 
+## 2.0.0 (2026-10-01)
+
+The brain becomes your Chief of Staff. It has its own name and mandate, plans the work, hands it to a small team of specialist agents, keeps the business's promises, and learns how you like things done. It prepares; you approve. The design borrows the way a language model is built (ideas from MiniMind, Apache 2.0; no code copied): a vocabulary, a constitution, a router to experts, a fixed tool-call format, a quick-or-deliberate switch, adapters, preference learning, group-relative scoring, distillation and a guard against drift.
+
+**Identity**
+- At setup you name your Chief of Staff, and it writes a constitution: owner, voice, language, mandate, and what it may do alone, what needs your yes, and what it never does.
+- It speaks as that identity in every session. The session brief now starts with its card.
+- A drift guard checks its reports and your drafts: "I've sent it", "we guarantee a refund" and final legal or tax conclusions are caught.
+- Only the owner can change the identity. Every change bumps the version and is logged.
+
+**Orchestration**
+- Four new specialist agents: researcher, analyst, drafter and clerk, alongside the reader, the checker and the topic expert.
+- A router reads each request, recognises the business things in it through a new lexicon (the business's own words and abbreviations, in English and Arabic), picks the specialists, says which can run in parallel, and sets the depth and audience. It lists what needs your approval.
+- Tasking memos brief each agent with the identity, the active lens, the reader's profile, the playbook, the facts its audience may see (confidential facts left out of team and external jobs), and a fixed report format.
+- Every report is checked and scored: answer, sources, format, finished. Confidentiality breaches, unsupported or signal citations and identity drift lower the score. A specialist that keeps scoring low gets an independent check on its work.
+- Quick by default; deliberate, with an independent checker the drafter waits for, for large sums, legal, tax, contract and people decisions, investors, the board or a bank, recommendations, and the CFO and people lenses.
+- Options memos score two to four options on the same weighted criteria, recommend the one that beats the group, show the runner-up, and say what would change the answer.
+
+**Chief of Staff rhythms**
+- Commitments: promises both ways, with due dates read from plain English or Arabic ("by Thursday", "15 October", "غدا"). New promises are spotted as you type them, and in meeting notes and emails.
+- Delegations: work handed to people or agents, with owners and dates, and a ready-to-send follow-up for anything overdue or blocked (sending needs your yes).
+- Morning brief: the day's three priorities, what's coming up, who owes you what, and agent reports to review.
+- Meeting prep: what the brain knows about them, promises both ways, dates, what you sent them before, decisions and leads, and a suggested agenda.
+- The Sunday review adds promises and delegations, the agent scorecard and a refreshed playbook.
+
+**Learning loop**
+- Preference pairs: when you choose one draft over another, the brain records what made the difference. A difference that wins three times or more becomes a proposed rule, and you decide.
+- Playbook: lessons, accepted preferences, agent watch-outs and recent decisions, condensed into one page every agent reads first.
+
+**Lenses and people**
+- Role lenses for CFO, operations, sales and people: the questions that role always asks, the specialists it leans on, and how it reports. The facts don't change.
+- People profiles for colleagues: their audience (team by default), language, style and areas. Briefs written for them follow the profile and never include confidential facts.
+
+**New command:** `/my-business-brain:chief`.
+
+**Tests**
+- 80 unit tests (14 new, including a stress test that throws odd, huge, Arabic and injected input at every new command) and 20 behaviour tests. The new behaviour tests check that the Chief of Staff holds an email for your approval instead of claiming it was sent, and that it leads the day with the overdue promise and the near notice deadline.
+
 ## 1.5.0 (2026-09-28)
 
 This release gives the brain a research arm. It can keep an eye on the sources the business depends on, hear what people are saying without mistaking it for fact, keep recordings as sources, and use whatever research tools you have installed.

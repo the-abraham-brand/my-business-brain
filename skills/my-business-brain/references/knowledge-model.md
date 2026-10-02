@@ -36,6 +36,13 @@ business-brain/
     reviews/               the Sunday evening reviews
     toolkit.json           research tools, skills and plugins the brain can use
     trusted-sources.json   optional: the business's own source tiers
+    identity.md, identity-history.md   the Chief of Staff's constitution and its approved changes
+    playbook.md            distilled lessons, preferences and decisions every agent reads first
+    commitments.jsonl/.md, delegations.jsonl/.md   promises both ways, and work handed out
+    tasks/  agents/        tasking memos and reports; routes and the agent scorecard
+    briefs/  profiles/  adapters/   morning briefs, colleagues' profiles, the active role lens
+    lexicon.json, lexicon-aliases.json   the business's own vocabulary
+    preference-pairs.jsonl the owner's choices between drafts
 ```
 
 Domains (folders under `entries/`) start with: `company`, `products`, `pricing`, `customers`, `suppliers`, `people`, `policies`, `procedures`, `contracts`, `finance`, `metrics`, `marketing`, `sales`, `operations`, `legal-regulatory`, `decisions`, `glossary`. Add a domain only when an entry does not fit any existing one, and record it in `BRAIN.md`.

@@ -34,6 +34,16 @@ def main():
                      + " | ".join(f'"{f[:140]}"' for f in facts[:3])
                      + f". Run the capture decision (capture_mode={mode}: "
                      + ("offer to remember them" if mode == "ask" else "remember them and say so") + ").")
+    if not off_record(prompt):
+        try:
+            from commitments import scan
+            promised = scan(prompt)
+        except Exception:
+            promised = []
+        if promised:
+            notes.append("This message mentions a promise: " + " | ".join(
+                f'"{c["what"][:120]}"' + (f" (due {c['due']})" if c["due"] else "") for c in promised[:3])
+                + ". Offer to record it as a commitment (scripts/commitments.py add), so it can't slip.")
     if notes:
         emit("UserPromptSubmit", "My Business Brain: " + " ".join(notes))
     return 0

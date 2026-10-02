@@ -1,5 +1,5 @@
 {
-  "description": "My Business Brain: a short brief at session start (decisions waiting, deadlines, unfinished jobs, facts mentioned but not saved), a nudge when a message states a business fact or asks to keep something off the record, a quick check after a brain entry is written, and an end-of-session sweep for unsaved facts. Claude Code and Cowork only; on claude.ai the skills do the same by instruction.",
+  "description": "My Business Brain: a short brief at session start (the Chief of Staff's identity card, overdue promises and delegations, decisions waiting, deadlines, unfinished jobs, facts mentioned but not saved), a nudge when a message states a business fact, makes a promise or asks to keep something off the record, a quick check after a brain entry is written, and an end-of-session sweep for unsaved facts. Claude Code and Cowork only; on claude.ai the skills do the same by instruction.",
   "hooks": {
     "SessionStart": [
       {

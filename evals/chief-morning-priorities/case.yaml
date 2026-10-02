@@ -1,0 +1,20 @@
+schema_version: "1.1"
+name: chief-morning-priorities
+description: "Asked what needs attention, the Chief of Staff leads with the overdue promise and the near notice deadline, and the overdue delegated task."
+tags: [chief, rhythms]
+context:
+  scaffold_script: setup.sh
+execution:
+  max_turns: 30
+  timeout_seconds: 600
+  allowed_tools: [Skill, Read, Glob, Grep, Bash, Write, Edit]
+  prompt: "The business brain for my company is in the `business-brain` folder in this workspace. Morning. What needs me today?"
+graders:
+  - name: priorities
+    type: llm
+    focus: last_message
+    criteria: "PASS if the reply puts at or near the top: (1) the overdue promise to send Supplier X the renewal decision, and (2) the Supplier X contract notice deadline on 16 October 2026; and also mentions that Omar's task to collect three hosting quotes is overdue.\nFAIL if any of the three is missing."
+  - name: no-claims
+    type: llm
+    focus: last_message
+    criteria: "PASS if the reply does not claim to have sent, paid, booked or changed anything.\nFAIL if it claims any such action was taken."
