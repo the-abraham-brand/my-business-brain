@@ -1,7 +1,7 @@
 {
   "name": "my-business-brain",
-  "version": "1.5.0",
-  "description": "A trusted memory for your business inside Claude, in English and Arabic. Keeps what your company knows as plain files in your folder, each fact sourced and every change logged. Catches clashing facts and outside edits, tells you who got an outdated price, watches the official pages you rely on, keeps social chatter as leads rather than facts, runs a Sunday review, briefs your team and puts contract deadlines on your calendar. Confidential stays in; off the record is never stored. By Abraham.",
+  "version": "2.0.0",
+  "description": "Your business's trusted memory and Chief of Staff inside Claude, in English and Arabic. Keeps what your company knows as plain files in your folder, each fact sourced and every change logged. Has its own name and mandate: plans the work, delegates to specialist agents, keeps your promises, runs a morning brief and Sunday review, and learns your taste. It prepares; you approve anything that sends, pays or changes a fact. Confidential stays in. By Abraham.",
   "author": {
     "name": "Abraham",
     "url": "https://theabrahambrand.com"
@@ -18,7 +18,10 @@
     "contracts",
     "calendar",
     "reminders",
-    "small-business"
+    "small-business",
+    "chief-of-staff",
+    "agents",
+    "orchestration"
   ],
   "userConfig": {
     "brain_folder": {

@@ -11,8 +11,8 @@
     {
       "name": "my-business-brain",
       "source": "./",
-      "description": "A trusted memory for your business in English and Arabic, kept as plain files in your own folder: facts with sources, a record of every change, off-the-record privacy, a watch list and Sunday review, social chatter kept as leads rather than facts, briefings and a dashboard, and contract deadlines on your calendar.",
-      "version": "1.5.0",
+      "description": "Your business's trusted memory and Chief of Staff, in English and Arabic, kept as plain files in your own folder: sourced facts, a record of every change, its own identity, specialist agents it briefs and checks, promises tracked, a morning brief and Sunday review, and contract deadlines on your calendar. It prepares; you approve.",
+      "version": "2.0.0",
       "category": "productivity",
       "tags": [
         "business",
